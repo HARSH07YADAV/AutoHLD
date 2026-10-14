@@ -1,0 +1,85 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# AutoHLD — docker-compose.yml
+#
+# Starts two services:
+#   autohld  — the FastAPI web application (this repo)
+#   ollama   — the local LLM server (https://ollama.com)
+#
+# Usage:
+#   # First time — build the app image and start everything:
+#   docker-compose up --build -d
+#
+#   # Pull the LLM model (only needed once):
+#   docker-compose exec ollama ollama pull qwen2.5:1.5b
+#
+#   # Open the app:
+#   http://localhost:8000
+#
+#   # Stop everything:
+#   docker-compose down
+#
+#   # Stop and delete all stored data (uploads, vectors, database):
+#   docker-compose down -v
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── AutoHLD application ─────────────────────────────────────────────────────
+  autohld:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: autohld
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # Point the app at the Ollama container, not localhost
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-qwen2.5:1.5b}
+      - LLM_PROVIDER=${LLM_PROVIDER:-ollama}
+      # OpenAI fallback — set in your .env file if needed
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+    volumes:
+      # Persistent storage: uploads, vector DB, SQLite, reports
+      # All data survives container restarts and rebuilds.
+      - autohld_storage:/app/storage
+      - ./frontend:/app/frontend:ro
+      - ./backend:/app/backend:ro
+    depends_on:
+      ollama:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # ── Ollama LLM server ───────────────────────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    # Note: port 11434 is NOT exposed to the host to avoid conflicting with
+    # any host Ollama service. autohld accesses it via http://ollama:11434.
+    expose:
+      - "11434"
+    volumes:
+      # Ollama stores downloaded model weights here.
+      # Persisting this volume means models survive container restarts.
+      - ollama_models:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+# ── Named volumes ─────────────────────────────────────────────────────────────
+volumes:
+  autohld_storage:
+    driver: local
+  ollama_models:
+    driver: local

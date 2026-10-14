@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environment
+.venv/
+venv/
+
+# Environment / secrets
+.env
+
+# Runtime storage (generated at runtime, not part of the repo)
+# .gitkeep files in these directories are kept so the folders exist on clone
+storage/uploads/*
+storage/chroma_db/*
+storage/reports/*
+storage/autohld.db
+storage/autohld.db-shm
+storage/autohld.db-wal
+!storage/uploads/.gitkeep
+!storage/chroma_db/.gitkeep
+!storage/reports/.gitkeep
+
+# Test database files
+*.db
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml

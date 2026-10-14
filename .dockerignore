@@ -1,0 +1,49 @@
+# ── Python runtime files ──────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# ── Virtual environment ───────────────────────────────────────────────────────
+.venv/
+venv/
+
+# ── Environment / secrets ─────────────────────────────────────────────────────
+.env
+
+# ── Runtime storage ───────────────────────────────────────────────────────────
+# Storage is mounted as a Docker volume at runtime — do not bake it into the image.
+storage/uploads/
+storage/chroma_db/
+storage/reports/
+storage/*.db
+storage/*.db-shm
+storage/*.db-wal
+
+# ── Tests (not needed in production image) ────────────────────────────────────
+tests/
+
+# ── Development / CI artifacts ────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# ── Editor and OS files ───────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Git ───────────────────────────────────────────────────────────────────────
+.git/
+.gitignore
+
+# ── Documentation (not needed in image) ──────────────────────────────────────
+README.md
+DEMO_GUIDE.md

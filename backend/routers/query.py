@@ -65,12 +65,16 @@ async def ask_question(body: AskRequest) -> AskResponse:
             detail=str(exc),
         )
     except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
+        # Document not found, not ready, or vector store inconsistency
+        err = str(exc)
+        if "vector store" in err:
+            raise HTTPException(status_code=422, detail=err)
+        raise HTTPException(status_code=400, detail=err)
     except Exception as exc:
         logger.exception("Unexpected RAG error for doc=%s: %s", body.doc_id, exc)
         raise HTTPException(
             status_code=500,
-            detail="An internal error occurred while generating the answer.",
+            detail=f"An internal error occurred while generating the answer: {exc}",
         )
 
     return AskResponse(

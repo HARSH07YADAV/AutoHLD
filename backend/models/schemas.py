@@ -70,9 +70,15 @@ class SourceCitation(BaseModel):
 
 
 class AskResponse(BaseModel):
-    answer:  str
-    sources: list[SourceCitation]
-    model:   str
+    answer:     str
+    sources:    list[SourceCitation]
+    model:      str
+    model_used: str = ""   # alias for frontend compatibility
+
+    def model_post_init(self, __context):
+        # Keep model_used in sync with model if not set explicitly
+        if not self.model_used:
+            self.model_used = self.model
 
 
 # ── Extraction (Phase 3) ──────────────────────────────────────────────────────

@@ -13,7 +13,11 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv()
+# Always load .env from the project root (two levels up from this file),
+# regardless of the working directory the server was launched from.
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+_ENV_FILE = _PROJECT_ROOT / ".env"
+load_dotenv(dotenv_path=_ENV_FILE, override=False)   # override=False: env vars win over .env
 
 # ── Project root ──────────────────────────────────────────────────────────────
 BASE_DIR = Path(__file__).resolve().parent.parent

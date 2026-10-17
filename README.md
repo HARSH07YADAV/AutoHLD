@@ -1,6 +1,8 @@
-# AutoHLD
+<div align="center">
+  <img src="frontend/images/autohld-logo.png" alt="AutoHLD Logo" width="560" />
 
-**AUTOSAR High-Level Design Document Analysis Assistant**
+  <p><strong>AUTOSAR High-Level Design Document Analysis Assistant</strong></p>
+</div>
 
 A Python/FastAPI tool that lets an engineer upload an AUTOSAR HLD PDF, ask plain-language questions about it, extract named architectural entities, run a basic consistency check, and download a structured analysis report.
 

@@ -87,6 +87,14 @@ const API = (() => {
     return _request('DELETE', `/api/documents/${docId}`);
   }
 
+  async function repairDocument(docId) {
+    return _request('POST', `/api/repair/${docId}`);
+  }
+
+  async function getEDA(docId) {
+    return _request('GET', `/api/eda/${docId}`);
+  }
+
   function getReportDownloadUrl(docId) {
     return `${BASE}/api/reports/${docId}/download`;
   }
@@ -96,6 +104,7 @@ const API = (() => {
     pollStatus,
     listDocuments,
     deleteDocument,
+    repairDocument,
     askQuestion,
     getHistory,
     getLLMStatus,
@@ -105,6 +114,7 @@ const API = (() => {
     getInconsistencyReport,
     getDashboardData,
     getReport,
+    getEDA,
     getReportDownloadUrl,
   };
 })();

@@ -129,12 +129,22 @@ def update_document_ready(
     conn.commit()
 
 
-def update_document_error(doc_id: str, error_msg: str) -> None:
-    """Mark a document as failed with an error message."""
+def update_document_error(doc_id: str, error_msg: str | None) -> None:
+    """Mark a document as failed with an error message, or clear a previous error."""
     conn = _get_conn()
     conn.execute(
         "UPDATE documents SET status = 'error', error_msg = ? WHERE doc_id = ?",
         (error_msg, doc_id),
+    )
+    conn.commit()
+
+
+def update_document_processing(doc_id: str) -> None:
+    """Reset a document's status to 'processing' (used during repair/re-ingestion)."""
+    conn = _get_conn()
+    conn.execute(
+        "UPDATE documents SET status = 'processing', error_msg = NULL WHERE doc_id = ?",
+        (doc_id,),
     )
     conn.commit()
 

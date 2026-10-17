@@ -37,7 +37,8 @@ def _get_model() -> SentenceTransformer:
     if _model is None:
         logger.info("Loading embedding model: %s", EMBEDDING_MODEL)
         _model = SentenceTransformer(EMBEDDING_MODEL)
-        logger.info("Embedding model loaded (vector dim: %d)", _model.get_embedding_dimension())
+        dim = getattr(_model, 'get_sentence_embedding_dimension', None) or getattr(_model, 'get_embedding_dimension', None)
+        logger.info("Embedding model loaded (vector dim: %s)", dim() if dim else '?')
     return _model
 
 
@@ -145,4 +146,13 @@ def embed_query(query: str) -> list[float]:
 
 def get_embedding_dimension() -> int:
     """Return the output vector dimension of the loaded model."""
-    return _get_model().get_embedding_dimension()
+    model = _get_model()
+    # get_sentence_embedding_dimension() is the stable API across all versions
+    if hasattr(model, 'get_sentence_embedding_dimension'):
+        return model.get_sentence_embedding_dimension()
+    if hasattr(model, 'get_embedding_dimension'):
+        return model.get_embedding_dimension()
+    # Final fallback: encode a dummy string and check the shape
+    import numpy as np
+    dummy = model.encode(['x'], convert_to_numpy=True)
+    return int(np.array(dummy).shape[-1])

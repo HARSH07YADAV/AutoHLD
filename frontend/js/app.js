@@ -344,8 +344,14 @@ window.DashboardModule = {
 // ── Application Bootstrap ─────────────────────────────────────────────────────
 (async function init() {
   initTheme();
-  await checkLLMStatus();
-  await refreshDocSelector(true);
+
+  try {
+    await checkLLMStatus();
+    await refreshDocSelector(true);
+  } catch (err) {
+    console.warn('Init error:', err);
+  }
+
   const hash = (window.location.hash || '').replace('#', '');
   if (hash && ['home', 'upload', 'qa', 'overview', 'components', 'relationships', 'consistency', 'reports', 'settings'].includes(hash)) {
     switchTab(hash);

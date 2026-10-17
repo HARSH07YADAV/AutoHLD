@@ -165,9 +165,16 @@ window.UploadModule = (() => {
 
       registryBody.innerHTML = docs.map(d => {
         const isCurrent = d.doc_id === App.currentDocId;
-        const statusBadge = d.status === 'ready'
-          ? '<span class="badge badge-success">Ready</span>'
-          : `<span class="badge badge-warning">${d.status}</span>`;
+        let statusBadge;
+        if (d.needs_repair) {
+          statusBadge = '<span class="badge badge-warning">Needs Repair</span>';
+        } else if (d.status === 'ready') {
+          statusBadge = '<span class="badge badge-success">Ready</span>';
+        } else if (d.status === 'error') {
+          statusBadge = '<span class="badge badge-warning" title="' + escapeHtml(d.error_msg || '') + '">Error</span>';
+        } else {
+          statusBadge = `<span class="badge badge-warning">${d.status}</span>`;
+        }
         const uploadDate = d.upload_time ? new Date(d.upload_time).toLocaleString() : '—';
 
         return `
@@ -177,14 +184,25 @@ window.UploadModule = (() => {
             <td style="color: var(--text-muted); font-size: 12px;">${uploadDate}</td>
             <td>${statusBadge}</td>
             <td>
-              <div style="display: flex; gap: 8px;">
-                <button
-                  class="btn btn-sm ${isCurrent ? 'btn-primary' : 'btn-ghost'}"
-                  onclick="UploadModule.selectDoc('${d.doc_id}', '${escapeHtml(d.filename)}')"
-                  ${isCurrent ? 'aria-current="true"' : ''}
-                >
-                  ${isCurrent ? 'Active' : 'Select'}
-                </button>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                ${d.status === 'ready' && !d.needs_repair ? `
+                  <button
+                    class="btn btn-sm ${isCurrent ? 'btn-primary' : 'btn-ghost'}"
+                    onclick="UploadModule.selectDoc('${d.doc_id}', '${escapeHtml(d.filename)}')"
+                    ${isCurrent ? 'aria-current="true"' : ''}
+                  >
+                    ${isCurrent ? 'Active' : 'Select'}
+                  </button>
+                ` : ''}
+                ${d.needs_repair ? `
+                  <button
+                    class="btn btn-sm btn-primary"
+                    onclick="UploadModule.repairDoc('${d.doc_id}', '${escapeHtml(d.filename)}')"
+                    title="Re-index this document in the vector store"
+                  >
+                    ⚡ Repair
+                  </button>
+                ` : ''}
                 <button
                   class="btn btn-sm btn-danger"
                   onclick="UploadModule.deleteDoc('${d.doc_id}', '${escapeHtml(d.filename)}')"
@@ -236,6 +254,26 @@ window.UploadModule = (() => {
     }
   }
 
+  async function repairDoc(docId, filename) {
+    if (!confirm(`Re-index "${filename}"? This will re-process the PDF and rebuild the vector store. It may take 30–60 seconds.`)) {
+      return;
+    }
+
+    try {
+      showToast(`Re-indexing "${filename}"…`, 'info', 8000);
+      await API.repairDocument(docId);
+
+      // Poll for completion just like a normal upload
+      await pollIngestStatus(docId, filename);
+
+      await refreshDocSelector(false);
+      await refreshDocRegistry();
+      if (window.HomeModule?.refresh) await window.HomeModule.refresh();
+    } catch (err) {
+      showToast(`Repair failed: ${err.message}`, 'error', 6000);
+    }
+  }
+
   function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/'/g, '&#39;');
@@ -247,6 +285,7 @@ window.UploadModule = (() => {
   return {
     selectDoc,
     deleteDoc,
+    repairDoc,
     refreshDocRegistry,
   };
 })();

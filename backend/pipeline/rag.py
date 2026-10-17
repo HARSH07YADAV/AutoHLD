@@ -26,6 +26,7 @@ from dataclasses import dataclass
 
 from backend.database import sqlite_db
 from backend.database.sqlite_db import get_document
+from backend.database import vector_db
 from backend.pipeline import llm_client
 from backend.pipeline.prompt_builder import build_no_doc_prompt, build_prompt
 from backend.pipeline.retriever import RetrievedChunk, retrieve
@@ -84,13 +85,22 @@ def ask(doc_id: str, question: str) -> RAGAnswer:
     ValueError  — if doc_id doesn't exist or is not yet ready
     ConnectionError — if the LLM backend is unreachable
     """
-    # ── Validate document ──────────────────────────────────────────────────
+    # ── Validate document is ready and has chunks ──────────────────────────
     doc = get_document(doc_id)
     if doc is None:
         raise ValueError(f"Document '{doc_id}' not found.")
     if doc.status != "ready":
         raise ValueError(
             f"Document '{doc_id}' is not ready for querying (status: {doc.status})."
+        )
+
+    # Verify the document has chunks in ChromaDB (guard against doc_id mismatch)
+    chunk_count = vector_db.collection_count(doc_id)
+    if chunk_count == 0:
+        raise ValueError(
+            f"Document '{doc_id}' shows {doc.chunk_count} chunks in the database but "
+            "none were found in the vector store. "
+            "Please delete and re-upload this document to fix the inconsistency."
         )
 
     logger.info("RAG query | doc=%s | question=%r", doc_id, question[:80])

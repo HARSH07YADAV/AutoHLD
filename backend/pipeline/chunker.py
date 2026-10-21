@@ -103,13 +103,28 @@ def chunk_document(doc_content: DocumentContent, doc_id: str) -> list[Chunk]:
         chunks.extend(page_chunks)
         chunk_index += len(page_chunks)
 
+    # Deduplicate: remove any chunks whose stripped text is exactly identical.
+    # This can happen on very short pages where the overlap window covers the
+    # entire page, producing two chunks with the same content.
+    seen_texts: set[str] = set()
+    deduped_chunks: list[Chunk] = []
+    for chunk in chunks:
+        normalised = chunk.text.strip().lower()
+        if normalised not in seen_texts:
+            seen_texts.add(normalised)
+            deduped_chunks.append(chunk)
+
+    removed = len(chunks) - len(deduped_chunks)
+    if removed:
+        logger.info("Removed %d exact-duplicate chunk(s) during ingestion.", removed)
+
     logger.info(
         "Chunked '%s' into %d chunks across %d non-empty pages.",
         doc_content.filename,
-        len(chunks),
+        len(deduped_chunks),
         len(doc_content.non_empty_pages),
     )
-    return chunks
+    return deduped_chunks
 
 
 # ── Internal helpers ──────────────────────────────────────────────────────────

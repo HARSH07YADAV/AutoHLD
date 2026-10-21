@@ -29,10 +29,11 @@ function switchTab(tabName) {
   closeMobileSidebar();
 
   // Trigger tab-specific refresh if document is loaded
-  if (App.currentDocId) {
-    if (tabName === 'home' && window.HomeModule?.refresh) {
-      window.HomeModule.refresh();
-    } else if (tabName === 'overview' && window.OverviewModule?.refresh) {
+  if (tabName === 'home') {
+    if (window.DashboardModule?.refresh) window.DashboardModule.refresh();
+    if (window.HomeModule?.refresh) window.HomeModule.refresh();
+  } else if (App.currentDocId) {
+    if (tabName === 'overview' && window.OverviewModule?.refresh) {
       window.OverviewModule.refresh();
     } else if (tabName === 'components' && window.ComponentsModule?.refresh) {
       window.ComponentsModule.refresh();
@@ -162,6 +163,11 @@ function selectDocument(docId, filename, meta = null) {
   // Update QA no-doc notice
   const qaNotice = document.getElementById('qa-no-doc-notice');
   if (qaNotice) qaNotice.style.display = 'none';
+
+  // Refresh dashboard metrics
+  if (window.DashboardModule?.refresh) {
+    window.DashboardModule.refresh();
+  }
 
   // Refresh active page
   const hash = (window.location.hash || '').replace('#', '');
@@ -333,14 +339,6 @@ window.HomeModule = (() => {
   return { refresh, renderDocList, selectDoc };
 })();
 
-// ── Dashboard Module Stub (for compatibility) ─────────────────────────────────
-// The old dashboard.js still references KPI elements — provide a fallback
-window.DashboardModule = {
-  refresh: async function() {
-    await window.HomeModule?.refresh();
-  }
-};
-
 // ── Application Bootstrap ─────────────────────────────────────────────────────
 (async function init() {
   initTheme();
@@ -348,6 +346,9 @@ window.DashboardModule = {
   try {
     await checkLLMStatus();
     await refreshDocSelector(true);
+    if (window.DashboardModule?.refresh) {
+      await window.DashboardModule.refresh();
+    }
   } catch (err) {
     console.warn('Init error:', err);
   }
@@ -364,4 +365,5 @@ window.DashboardModule = {
   });
   setInterval(checkLLMStatus, 60000);
 })();
+
 

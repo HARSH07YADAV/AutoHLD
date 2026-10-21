@@ -59,7 +59,7 @@ TOP_K_RESULTS = 5
 # "openai" uses the OpenAI API — better quality, costs money per query.
 LLM_PROVIDER    = os.getenv("LLM_PROVIDER", "ollama")
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-OLLAMA_MODEL    = os.getenv("OLLAMA_MODEL", "qwen2.5:1.5b")
+OLLAMA_MODEL    = os.getenv("OLLAMA_MODEL", "gemma3:4b")
 OPENAI_API_KEY  = os.getenv("OPENAI_API_KEY", "")
 OPENAI_MODEL    = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 

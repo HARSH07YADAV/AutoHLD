@@ -96,6 +96,26 @@ window.UploadModule = (() => {
     }
   }
 
+  async function loadSampleDoc() {
+    if (!progressWrap) return;
+    progressWrap.classList.remove('hidden');
+    if (uploadFileName) uploadFileName.textContent = 'AUTOSAR_BMS_HighLevelDesign.pdf';
+    if (uploadStatus) uploadStatus.textContent = 'Loading sample…';
+    if (uploadDetail) uploadDetail.textContent = 'Loading synthetic Battery Management System AUTOSAR specification…';
+    if (progressFill) progressFill.style.width = '30%';
+
+    try {
+      const resp = await API.uploadSampleDocument();
+      const docId = resp.doc_id;
+      if (progressFill) progressFill.style.width = '60%';
+      if (uploadStatus) uploadStatus.textContent = 'Ingesting sample…';
+      await pollIngestStatus(docId, 'AUTOSAR_BMS_HighLevelDesign.pdf');
+    } catch (err) {
+      if (progressWrap) progressWrap.classList.add('hidden');
+      showToast(`Could not load sample: ${err.message}`, 'error', 5000);
+    }
+  }
+
   async function pollIngestStatus(docId, filename) {
     const startTime = Date.now();
     const interval = 1000;
@@ -158,7 +178,7 @@ window.UploadModule = (() => {
 
       if (docs.length === 0) {
         registryBody.innerHTML = `
-          <tr><td colspan="5" class="table-empty">No documents uploaded yet. Upload a PDF to get started.</td></tr>
+          <tr><td colspan="6" class="table-empty">No documents uploaded yet. Upload a PDF or click "Load Sample AUTOSAR HLD" to get started.</td></tr>
         `;
         return;
       }
@@ -171,7 +191,7 @@ window.UploadModule = (() => {
         } else if (d.status === 'ready') {
           statusBadge = '<span class="badge badge-success">Ready</span>';
         } else if (d.status === 'error') {
-          statusBadge = '<span class="badge badge-warning" title="' + escapeHtml(d.error_msg || '') + '">Error</span>';
+          statusBadge = '<span class="badge badge-danger" title="' + escapeHtml(d.error_msg || '') + '">Error</span>';
         } else {
           statusBadge = `<span class="badge badge-warning">${d.status}</span>`;
         }
@@ -179,15 +199,21 @@ window.UploadModule = (() => {
 
         return `
           <tr style="${isCurrent ? 'background-color: var(--accent-muted);' : ''}">
-            <td style="font-weight: 600;">${escapeHtml(d.filename)}</td>
+            <td style="font-weight: 600;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent); flex-shrink: 0;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <span>${escapeHtml(d.filename)}</span>
+              </div>
+            </td>
             <td>${d.page_count ?? '—'}</td>
+            <td>${d.chunk_count ?? d.vector_count ?? '—'}</td>
             <td style="color: var(--text-muted); font-size: 12px;">${uploadDate}</td>
             <td>${statusBadge}</td>
             <td>
               <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                 ${d.status === 'ready' && !d.needs_repair ? `
                   <button
-                    class="btn btn-sm ${isCurrent ? 'btn-primary' : 'btn-ghost'}"
+                    class="btn btn-sm ${isCurrent ? 'btn-primary' : 'btn-secondary'}"
                     onclick="UploadModule.selectDoc('${d.doc_id}', '${escapeHtml(d.filename)}')"
                     ${isCurrent ? 'aria-current="true"' : ''}
                   >
@@ -217,7 +243,7 @@ window.UploadModule = (() => {
       }).join('');
     } catch (err) {
       registryBody.innerHTML = `
-        <tr><td colspan="5" class="table-empty" style="color: var(--danger);">Could not load documents: ${err.message}</td></tr>
+        <tr><td colspan="6" class="table-empty" style="color: var(--danger);">Could not load documents: ${err.message}</td></tr>
       `;
     }
   }
@@ -230,7 +256,8 @@ window.UploadModule = (() => {
     selectDocument(docId, filename, meta);
     await refreshDocRegistry();
     if (window.HomeModule?.refresh) await window.HomeModule.refresh();
-    showToast(`Now viewing: ${filename}`, 'info');
+    if (window.DashboardModule?.refresh) await window.DashboardModule.refresh();
+    showToast(`Active specification: ${filename}`, 'info');
   }
 
   async function deleteDoc(docId, filename) {
@@ -249,6 +276,7 @@ window.UploadModule = (() => {
       await refreshDocSelector(true);
       await refreshDocRegistry();
       if (window.HomeModule?.refresh) await window.HomeModule.refresh();
+      if (window.DashboardModule?.refresh) await window.DashboardModule.refresh();
     } catch (err) {
       showToast(`Could not delete: ${err.message}`, 'error');
     }
@@ -269,6 +297,7 @@ window.UploadModule = (() => {
       await refreshDocSelector(false);
       await refreshDocRegistry();
       if (window.HomeModule?.refresh) await window.HomeModule.refresh();
+      if (window.DashboardModule?.refresh) await window.DashboardModule.refresh();
     } catch (err) {
       showToast(`Repair failed: ${err.message}`, 'error', 6000);
     }
@@ -286,6 +315,7 @@ window.UploadModule = (() => {
     selectDoc,
     deleteDoc,
     repairDoc,
+    loadSampleDoc,
     refreshDocRegistry,
   };
 })();

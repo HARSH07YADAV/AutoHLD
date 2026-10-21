@@ -39,6 +39,10 @@ const API = (() => {
     return resp.json();
   }
 
+  async function uploadSampleDocument() {
+    return _request('POST', '/api/upload/sample');
+  }
+
   async function pollStatus(docId) {
     return _request('GET', `/api/status/${docId}`);
   }
@@ -49,6 +53,80 @@ const API = (() => {
 
   async function askQuestion(docId, question) {
     return _request('POST', '/api/ask', { doc_id: docId, question });
+  }
+
+  async function askQuestionStream(docId, question, { onToken, onSources, onDone, onError }) {
+    let resp;
+    try {
+      resp = await fetch(`${BASE}/api/ask/stream`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ doc_id: docId, question }),
+      });
+    } catch (netErr) {
+      if (onError) onError(new Error(`Connection failed: ${netErr.message}`));
+      return;
+    }
+
+    if (!resp.ok) {
+      let detail = `HTTP ${resp.status}`;
+      try {
+        const err = await resp.json();
+        detail = err.detail || detail;
+      } catch (_) {}
+      const errorObj = new Error(detail);
+      if (onError) onError(errorObj);
+      else throw errorObj;
+      return;
+    }
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let buffer = '';
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const parts = buffer.split('\n\n');
+        buffer = parts.pop(); // keep trailing incomplete event block
+
+        for (const block of parts) {
+          if (!block.trim()) continue;
+          let event = 'message';
+          let dataStr = '';
+          for (const line of block.split('\n')) {
+            if (line.startsWith('event:')) {
+              event = line.slice(6).trim();
+            } else if (line.startsWith('data:')) {
+              dataStr += line.slice(5).trim();
+            }
+          }
+
+          if (!dataStr) continue;
+          try {
+            const data = JSON.parse(dataStr);
+            if (event === 'sources' && onSources) {
+              onSources(data.sources, data.retrieval_time_s);
+            } else if (event === 'token' && onToken) {
+              onToken(data.token);
+            } else if (event === 'done' && onDone) {
+              onDone(data);
+            } else if (event === 'error') {
+              if (onError) onError(new Error(data.error || 'Inference error'));
+              return;
+            }
+          } catch (jsonErr) {
+            console.error('Error parsing SSE event payload:', jsonErr, block);
+          }
+        }
+      }
+    } catch (streamErr) {
+      if (onError) onError(streamErr);
+      else throw streamErr;
+    }
   }
 
   async function getHistory(docId) {
@@ -101,11 +179,13 @@ const API = (() => {
 
   return {
     uploadDocument,
+    uploadSampleDocument,
     pollStatus,
     listDocuments,
     deleteDocument,
     repairDocument,
     askQuestion,
+    askQuestionStream,
     getHistory,
     getLLMStatus,
     extractEntities,
@@ -118,3 +198,9 @@ const API = (() => {
     getReportDownloadUrl,
   };
 })();
+
+if (typeof window !== 'undefined') {
+  window.API = API;
+  window.API.askQuestionStream = API.askQuestionStream;
+}
+

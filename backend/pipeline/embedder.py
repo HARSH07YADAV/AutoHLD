@@ -23,6 +23,8 @@ from backend.pipeline.chunker import Chunk
 if TYPE_CHECKING:
     pass
 
+import functools
+
 logger = logging.getLogger(__name__)
 
 # ── Model singleton ───────────────────────────────────────────────────────────
@@ -37,9 +39,19 @@ def _get_model() -> SentenceTransformer:
     if _model is None:
         logger.info("Loading embedding model: %s", EMBEDDING_MODEL)
         _model = SentenceTransformer(EMBEDDING_MODEL)
-        dim = getattr(_model, 'get_sentence_embedding_dimension', None) or getattr(_model, 'get_embedding_dimension', None)
+        dim = getattr(_model, 'get_embedding_dimension', None) or getattr(_model, 'get_sentence_embedding_dimension', None)
         logger.info("Embedding model loaded (vector dim: %s)", dim() if dim else '?')
     return _model
+
+
+def warm_up_embedder() -> None:
+    """Pre-warm embedding model in the background so user requests are instantaneous."""
+    try:
+        model = _get_model()
+        model.encode("AUTOSAR high level design warmup", normalize_embeddings=True)
+        logger.info("Embedding model pre-warmed successfully.")
+    except Exception as exc:
+        logger.warning("Embedder warm-up failed: %s", exc)
 
 
 # ── Public API ────────────────────────────────────────────────────────────────
@@ -117,11 +129,23 @@ def embed_and_store(chunks: list[Chunk], batch_size: int = 64) -> int:
     return total_stored
 
 
+@functools.lru_cache(maxsize=1024)
+def _cached_embed_query(query: str) -> tuple[float, ...]:
+    model = _get_model()
+    vector = model.encode(
+        query,
+        show_progress_bar=False,
+        convert_to_numpy=True,
+        normalize_embeddings=True,
+    )
+    return tuple(vector.tolist())
+
+
 def embed_query(query: str) -> list[float]:
     """
     Embed a single query string for retrieval.
 
-    Uses the same model and normalisation as embed_and_store, so cosine
+    Uses an LRU cache and the same model and normalisation as embed_and_store, so cosine
     similarities are directly comparable.
 
     Parameters
@@ -134,24 +158,17 @@ def embed_query(query: str) -> list[float]:
     list[float]
         A 384-dimensional normalised embedding vector.
     """
-    model = _get_model()
-    vector = model.encode(
-        query,
-        show_progress_bar=False,
-        convert_to_numpy=True,
-        normalize_embeddings=True,
-    )
-    return vector.tolist()
+    normalized_q = query.strip()
+    return list(_cached_embed_query(normalized_q))
 
 
 def get_embedding_dimension() -> int:
     """Return the output vector dimension of the loaded model."""
     model = _get_model()
-    # get_sentence_embedding_dimension() is the stable API across all versions
-    if hasattr(model, 'get_sentence_embedding_dimension'):
-        return model.get_sentence_embedding_dimension()
     if hasattr(model, 'get_embedding_dimension'):
         return model.get_embedding_dimension()
+    if hasattr(model, 'get_sentence_embedding_dimension'):
+        return model.get_sentence_embedding_dimension()
     # Final fallback: encode a dummy string and check the shape
     import numpy as np
     dummy = model.encode(['x'], convert_to_numpy=True)

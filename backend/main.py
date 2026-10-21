@@ -18,7 +18,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+import threading
+
 from backend.database.sqlite_db import init_db
+from backend.pipeline.embedder import warm_up_embedder
+from backend.pipeline.llm_client import warm_up_llm
 from backend.routers import ingest, query, analysis
 
 # ── Logging ───────────────────────────────────────────────────────────────────
@@ -32,12 +36,21 @@ logger = logging.getLogger("autohld")
 
 
 # ── Startup / shutdown ────────────────────────────────────────────────────────
+def _warmup_background():
+    """Run warm-up routines asynchronously so server starts instantly without blocking requests."""
+    logger.info("Starting background pipeline pre-warmup...")
+    warm_up_embedder()
+    warm_up_llm()
+    logger.info("Pipeline pre-warmup completed.")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Initialise resources before the server starts accepting requests."""
     logger.info("AutoHLD starting up …")
     init_db()
     logger.info("SQLite database ready.")
+    threading.Thread(target=_warmup_background, daemon=True, name="autohld-warmup").start()
     yield
     logger.info("AutoHLD shutting down.")
 

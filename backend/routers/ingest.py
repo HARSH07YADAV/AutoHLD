@@ -70,6 +70,27 @@ async def upload_document(
     )
 
 
+@router.post("/upload/sample", response_model=UploadResponse)
+async def load_sample_document(background_tasks: BackgroundTasks) -> UploadResponse:
+    """Load the built-in synthetic AUTOSAR BMS HLD PDF for testing and evaluation."""
+    sample_path = Path(__file__).resolve().parent.parent.parent / "demo" / "sample_docs" / "sample_hld.pdf"
+    if not sample_path.exists():
+        from demo.generate_sample_pdf import build_pdf
+        build_pdf()
+    file_bytes = sample_path.read_bytes()
+    doc_id = generate_doc_id()
+    filename = "AUTOSAR_BMS_HighLevelDesign.pdf"
+    file_path = save_upload(file_bytes, doc_id, filename)
+    sqlite_db.create_document(doc_id, filename, str(file_path))
+    background_tasks.add_task(run_ingestion, doc_id, file_path, filename)
+    logger.info("Loaded sample document: doc_id=%s filename=%s", doc_id, filename)
+    return UploadResponse(
+        doc_id  = doc_id,
+        status  = "processing",
+        message = "Sample AUTOSAR BMS document loaded. Processing started.",
+    )
+
+
 @router.get("/status/{doc_id}", response_model=StatusResponse)
 async def get_status(doc_id: str) -> StatusResponse:
     """Return the current ingestion status for a document.

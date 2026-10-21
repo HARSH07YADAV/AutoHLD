@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AutoHLD — Understand Your Automotive Design Documents</title>
-  <meta name="description" content="Upload a design document, find important information, explore component connections, and get answers with references to the original pages." />
+  <title>AutoHLD — Automotive High-Level Design Intelligence Platform</title>
+  <meta name="description" content="Automotive systems engineering platform for AUTOSAR High-Level Design (HLD) document analysis, architecture visualization, AI-grounded Q&A, consistency review, and automated technical report generation." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="alternate icon" type="image/png" href="/images/autohld-icon.png" />
-  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/style.css?v=7" />
 </head>
 <body>
 
@@ -21,95 +21,96 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <a href="#" class="brand-link" onclick="switchTab('home'); return false;" aria-label="AutoHLD Home">
-        <div class="brand-logo" aria-hidden="true">
-          <img src="/images/autohld-mark.svg" class="brand-mark-img" alt="AutoHLD" width="38" height="21" />
-        </div>
-        <div class="brand-text">
-          <span class="brand-name">Auto<span class="brand-name-hld">HLD</span></span>
-          <span class="brand-tagline">Automotive AI</span>
+        <div class="brand-lockup">
+          <img src="/images/autohld-logo.png" alt="AutoHLD" class="brand-logo-img" />
+          <div class="brand-tagline">Automotive Systems Intelligence</div>
         </div>
       </a>
     </div>
 
-    <!-- Active Document Indicator -->
+    <!-- Active Document Spotlight Card -->
     <div class="sidebar-doc-indicator" id="sidebar-doc-indicator">
-      <div class="doc-indicator-label">ACTIVE DOCUMENT</div>
-      <div class="doc-indicator-name" id="sidebar-doc-name">No document selected</div>
-      <div class="doc-indicator-status" id="sidebar-doc-status"></div>
+      <div class="doc-indicator-header">
+        <span class="doc-indicator-label">ACTIVE SPECIFICATION</span>
+        <span class="doc-indicator-pulse" id="sidebar-doc-dot" title="Ready"></span>
+      </div>
+      <div class="doc-indicator-name" id="sidebar-doc-name" title="No document selected">No document selected</div>
+      <div class="doc-indicator-status" id="sidebar-doc-status">Select an HLD to begin</div>
     </div>
 
     <nav class="sidebar-nav" role="navigation" aria-label="Main navigation">
+      <div class="nav-group-label">Overview</div>
       <div class="nav-group">
-        <button class="nav-item active" data-tab="home" id="nav-home" aria-label="Home">
+        <button class="nav-item active" data-tab="home" id="nav-home" aria-label="Executive Dashboard">
           <span class="nav-icon">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           </span>
-          <span class="nav-label">Home</span>
+          <span class="nav-label">Dashboard</span>
         </button>
 
-        <button class="nav-item" data-tab="upload" id="nav-upload" aria-label="My Documents">
+        <button class="nav-item" data-tab="upload" id="nav-upload" aria-label="Document Management">
           <span class="nav-icon">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
           </span>
-          <span class="nav-label">My Documents</span>
+          <span class="nav-label">Documents</span>
         </button>
       </div>
 
-      <div class="nav-group-label">Explore</div>
+      <div class="nav-group-label">Engineering Analysis</div>
       <div class="nav-group">
         <button class="nav-item" data-tab="qa" id="nav-qa" aria-label="Ask a Question">
           <span class="nav-icon">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           </span>
-          <span class="nav-label">Ask a Question</span>
+          <span class="nav-label">Technical Q&A</span>
         </button>
 
-        <button class="nav-item" data-tab="overview" id="nav-overview" aria-label="Architecture Overview">
+        <button class="nav-item" data-tab="relationships" id="nav-relationships" aria-label="Architecture Diagram">
           <span class="nav-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
           </span>
-          <span class="nav-label">Architecture Overview</span>
+          <span class="nav-label">Architecture Graph</span>
         </button>
 
         <button class="nav-item" data-tab="components" id="nav-components" aria-label="Components & Interfaces">
           <span class="nav-icon">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
           </span>
-          <span class="nav-label">Components</span>
+          <span class="nav-label">Component Catalog</span>
         </button>
 
-        <button class="nav-item" data-tab="relationships" id="nav-relationships" aria-label="Connections">
+        <button class="nav-item" data-tab="overview" id="nav-overview" aria-label="Traceability Overview">
           <span class="nav-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
           </span>
-          <span class="nav-label">Connections</span>
+          <span class="nav-label">Page Traceability</span>
         </button>
       </div>
 
-      <div class="nav-group-label">Review & Report</div>
+      <div class="nav-group-label">Quality & Audit</div>
       <div class="nav-group">
-        <button class="nav-item" data-tab="consistency" id="nav-consistency" aria-label="Review Findings">
+        <button class="nav-item" data-tab="consistency" id="nav-consistency" aria-label="Engineering Review">
           <span class="nav-icon">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           </span>
-          <span class="nav-label">Review Findings</span>
+          <span class="nav-label">Engineering Review</span>
           <span class="nav-badge hidden" id="nav-badge-consistency">0</span>
         </button>
 
-        <button class="nav-item" data-tab="reports" id="nav-reports" aria-label="Reports">
+        <button class="nav-item" data-tab="reports" id="nav-reports" aria-label="Executive Reports">
           <span class="nav-icon">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
           </span>
-          <span class="nav-label">Reports</span>
+          <span class="nav-label">Executive Reports</span>
         </button>
       </div>
     </nav>
 
     <div class="sidebar-footer">
-      <!-- System Status -->
+      <!-- System Status Indicator -->
       <div class="system-status-pill" id="sys-status" title="AI Engine Status">
         <span class="status-dot online" id="status-dot"></span>
-        <span class="status-pill-text" id="llm-model-label">Checking…</span>
+        <span class="status-pill-text" id="llm-model-label">Checking engine…</span>
       </div>
 
       <!-- Theme Toggle & Settings -->
@@ -121,7 +122,7 @@
         </button>
         <button class="nav-item sidebar-settings-btn" data-tab="settings" id="nav-settings" aria-label="Settings">
           <span class="nav-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           </span>
           <span class="nav-label">Settings</span>
         </button>
@@ -129,7 +130,7 @@
     </div>
   </aside>
 
-  <!-- Mobile floating sidebar toggle (visible only on small viewports, no header bar) -->
+  <!-- Mobile floating sidebar toggle -->
   <button class="sidebar-toggle-btn" id="sidebar-toggle" aria-label="Toggle navigation">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
@@ -141,80 +142,198 @@
   <main class="app-main" id="app-main">
 
     <!-- ══════════════════════════════════════════════════════════════════
-         PAGE 1: HOME
+         PAGE 1: EXECUTIVE DASHBOARD (HOME)
          ════════════════════════════════════════════════════════════════ -->
-    <section class="page active" id="panel-home" role="main" aria-label="Home">
-      <div class="page-header home-header">
-        <div class="home-hero">
-          <h1 class="home-title">Understand Your Automotive Design Documents</h1>
-          <p class="home-subtitle">Upload a design document, find important info, map out components, and get answers backed by sources.</p>
-          <div class="home-cta-row">
-            <button class="btn btn-primary btn-lg" onclick="switchTab('upload')">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              Upload a Document
+    <section class="page active" id="panel-home" role="main" aria-label="Executive Dashboard">
+      <!-- Welcome & Active Document Banner -->
+      <div class="executive-banner">
+        <div class="executive-banner-content">
+          <div class="executive-pill">
+            <span class="status-pulse-dot"></span>
+            AUTOSAR HLD ANALYSIS &amp; VERIFICATION SYSTEM
+          </div>
+          <h1 class="executive-title">Automotive Engineering Dashboard</h1>
+          <p class="executive-subtitle">
+            Upload high-level software designs, extract architectural components, query with grounded citations, verify port-interface consistency, and generate formal review reports.
+          </p>
+
+          <!-- Active Document Spotlight Card inside Hero -->
+          <div class="active-doc-spotlight" id="home-active-spotlight">
+            <div class="spotlight-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+            </div>
+            <div class="spotlight-body">
+              <div class="spotlight-label">Currently Loaded Specification</div>
+              <div class="spotlight-filename" id="spotlight-filename">No specification selected</div>
+              <div class="spotlight-meta" id="spotlight-meta">Select an uploaded PDF or upload a new HLD document below</div>
+            </div>
+            <div class="spotlight-actions" id="spotlight-actions">
+              <button class="btn btn-primary btn-sm" onclick="switchTab('qa')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Ask Technical Q&amp;A
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="switchTab('relationships')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/></svg>
+                View Architecture
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Quick Actions Grid -->
+      <div class="quick-actions-row">
+        <button class="quick-action-card" onclick="switchTab('upload')">
+          <div class="qa-card-icon" style="background: rgba(37,99,235,0.12); color: var(--accent);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+          <div class="qa-card-text">
+            <div class="qa-card-title">Upload HLD PDF</div>
+            <div class="qa-card-desc">Ingest new AUTOSAR design specification</div>
+          </div>
+        </button>
+
+        <button class="quick-action-card" onclick="switchTab('qa')">
+          <div class="qa-card-icon" style="background: rgba(14,165,233,0.12); color: #0ea5e9;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div class="qa-card-text">
+            <div class="qa-card-title">Technical Q&amp;A</div>
+            <div class="qa-card-desc">Query document with verified page citations</div>
+          </div>
+        </button>
+
+        <button class="quick-action-card" onclick="switchTab('relationships')">
+          <div class="qa-card-icon" style="background: rgba(124,58,237,0.12); color: #7c3aed;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/></svg>
+          </div>
+          <div class="qa-card-text">
+            <div class="qa-card-title">Architecture Graph</div>
+            <div class="qa-card-desc">Interactive SWC, port, and interface topology</div>
+          </div>
+        </button>
+
+        <button class="quick-action-card" onclick="switchTab('consistency')">
+          <div class="qa-card-icon" style="background: rgba(245,158,11,0.12); color: #f59e0b;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+          </div>
+          <div class="qa-card-text">
+            <div class="qa-card-title">Review Findings</div>
+            <div class="qa-card-desc">Inspect port mismatches &amp; inconsistencies</div>
+          </div>
+        </button>
+
+        <button class="quick-action-card" onclick="switchTab('reports')">
+          <div class="qa-card-icon" style="background: rgba(16,185,129,0.12); color: #10b981;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div class="qa-card-text">
+            <div class="qa-card-title">Audit Reports</div>
+            <div class="qa-card-desc">Download PDF &amp; view executive summaries</div>
+          </div>
+        </button>
+      </div>
+
+      <!-- Restrained Visual Analytics Split -->
+      <div class="analytics-split-row">
+        <!-- Architecture Distribution Breakdown -->
+        <div class="dashboard-card analytics-card">
+          <div class="card-header-flex">
+            <div>
+              <h3 class="card-title">Architecture Entity Breakdown</h3>
+              <p class="card-subtitle">Distribution of extracted AUTOSAR entities for the active document</p>
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="switchTab('components')">View Catalog →</button>
+          </div>
+
+          <div class="entity-breakdown-bar-wrap">
+            <div class="entity-breakdown-bar" id="analytics-entity-bar">
+              <div class="bar-segment bar-segment--swc" style="width: 25%;" title="Components"></div>
+              <div class="bar-segment bar-segment--iface" style="width: 30%;" title="Interfaces"></div>
+              <div class="bar-segment bar-segment--port" style="width: 30%;" title="Ports"></div>
+              <div class="bar-segment bar-segment--signal" style="width: 15%;" title="Signals"></div>
+            </div>
+            <div class="entity-legend">
+              <div class="legend-item"><span class="legend-dot" style="background: #2563EB;"></span> <span id="legend-swc">SWCs: 0</span></div>
+              <div class="legend-item"><span class="legend-dot" style="background: #0ea5e9;"></span> <span id="legend-iface">Interfaces: 0</span></div>
+              <div class="legend-item"><span class="legend-dot" style="background: #7c3aed;"></span> <span id="legend-port">Ports: 0</span></div>
+              <div class="legend-item"><span class="legend-dot" style="background: #10b981;"></span> <span id="legend-signal">Signals: 0</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inconsistency Severity Breakdown -->
+        <div class="dashboard-card analytics-card">
+          <div class="card-header-flex">
+            <div>
+              <h3 class="card-title">Engineering Review Distribution</h3>
+              <p class="card-subtitle">Severity classification of detected potential inconsistencies</p>
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="switchTab('consistency')">Review All →</button>
+          </div>
+
+          <div class="severity-meter-grid" id="analytics-severity-meters">
+            <div class="meter-card meter-card--warning">
+              <div class="meter-header">
+                <span class="meter-label">Warnings</span>
+                <span class="meter-count" id="dash-cnt-warning">0</span>
+              </div>
+              <div class="meter-track"><div class="meter-fill" id="meter-fill-warning" style="width: 0%;"></div></div>
+              <div class="meter-sub">Port &amp; interface direction anomalies</div>
+            </div>
+
+            <div class="meter-card meter-card--review">
+              <div class="meter-header">
+                <span class="meter-label">Needs Review</span>
+                <span class="meter-count" id="dash-cnt-review">0</span>
+              </div>
+              <div class="meter-track"><div class="meter-fill" id="meter-fill-review" style="width: 0%;"></div></div>
+              <div class="meter-sub">Undefined interfaces &amp; signal mismatches</div>
+            </div>
+
+            <div class="meter-card meter-card--info">
+              <div class="meter-header">
+                <span class="meter-label">Informational</span>
+                <span class="meter-count" id="dash-cnt-info">0</span>
+              </div>
+              <div class="meter-track"><div class="meter-fill" id="meter-fill-info" style="width: 0%;"></div></div>
+              <div class="meter-sub">Heuristic observations &amp; structural notices</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Specifications Repository / Recently Ingested Documents -->
+      <div class="dashboard-card" style="margin-top: 24px;">
+        <div class="card-header-flex">
+          <div>
+            <h2 class="section-title">Specifications Repository</h2>
+            <p class="section-desc">Manage loaded automotive High-Level Design documents. Click any document to switch context.</p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-secondary btn-sm" id="home-load-sample-btn" onclick="UploadModule.loadSampleDoc()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Load Sample AUTOSAR HLD
             </button>
-            <a href="#how-it-works" class="btn btn-ghost btn-lg">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
-              How it works
-            </a>
+            <button class="btn btn-primary btn-sm" onclick="switchTab('upload')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Upload PDF
+            </button>
           </div>
         </div>
-      </div>
 
-      <!-- How It Works -->
-      <div class="home-section" id="how-it-works">
-        <h2 class="section-title">How AutoHLD Works</h2>
-        <div class="steps-row">
-          <div class="step-card">
-            <div class="step-card-header">
-              <div class="step-icon step-icon--amber">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-              </div>
-              <span class="step-number step-number--amber">1</span>
-            </div>
-            <h3>Upload a Document</h3>
-            <p>Start by uploading a PDF of your automotive design document. AutoHLD reads every page and prepares it for analysis.</p>
-          </div>
-          <div class="step-card">
-            <div class="step-card-header">
-              <div class="step-icon step-icon--blue">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-              </div>
-              <span class="step-number step-number--blue">2</span>
-            </div>
-            <h3>Explore &amp; Ask Questions</h3>
-            <p>Ask questions in plain language and get answers backed by the actual document. See which pages support each answer.</p>
-          </div>
-          <div class="step-card">
-            <div class="step-card-header">
-              <div class="step-icon step-icon--green">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><polyline points="10 9 9 9 8 9"/></svg>
-              </div>
-              <span class="step-number step-number--green">3</span>
-            </div>
-            <h3>Review &amp; Export</h3>
-            <p>Explore components and connections, review possible issues, and export an analysis report for your team.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Document Selector on Home -->
-      <div class="home-section">
-        <div class="section-header-row">
-          <h2 class="section-title">Your Documents</h2>
-          <button class="btn btn-sm btn-ghost" onclick="switchTab('upload')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Upload New
-          </button>
-        </div>
         <div id="home-doc-list" class="home-doc-grid">
           <div class="home-empty-state">
             <div class="empty-icon">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             </div>
-            <h3>No documents yet</h3>
-            <p>Upload a PDF to begin your analysis.</p>
-            <button class="btn btn-primary" onclick="switchTab('upload')">Upload a Document</button>
+            <h3>No specifications loaded yet</h3>
+            <p>Upload your automotive PDF specification or load the built-in AUTOSAR BMS sample document.</p>
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 14px;">
+              <button class="btn btn-secondary" onclick="UploadModule.loadSampleDoc()">Load Sample Document</button>
+              <button class="btn btn-primary" onclick="switchTab('upload')">Upload Custom PDF</button>
+            </div>
           </div>
         </div>
       </div>
@@ -222,13 +341,19 @@
 
 
     <!-- ══════════════════════════════════════════════════════════════════
-         PAGE 2: MY DOCUMENTS (UPLOAD)
+         PAGE 2: DOCUMENT MANAGEMENT (UPLOAD)
          ════════════════════════════════════════════════════════════════ -->
-    <section class="page" id="panel-upload" role="main" aria-label="My Documents">
+    <section class="page" id="panel-upload" role="main" aria-label="Document Management">
       <div class="page-header">
         <div class="page-title-area">
-          <h1>My Documents</h1>
-          <p class="page-subtitle">Upload a PDF document to begin your analysis. AutoHLD reads every page and prepares it for questions and exploration.</p>
+          <h1>Document Management</h1>
+          <p class="page-subtitle">Upload and manage automotive High-Level Design (HLD) specifications in PDF format. Ingestion extracts text, structured tables, and generates 384-dimensional semantic embeddings.</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-secondary" id="btn-load-sample-upload" onclick="UploadModule.loadSampleDoc()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Load Sample AUTOSAR HLD
+          </button>
         </div>
       </div>
 
@@ -236,38 +361,45 @@
       <div class="upload-zone" id="upload-zone" role="button" tabindex="0" aria-label="Upload area, click or drag file here">
         <div class="upload-zone-inner">
           <div class="upload-zone-icon">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
           </div>
           <div class="upload-zone-title">
-            Drag your PDF here, or
+            Drag &amp; drop your automotive PDF design document, or
             <label for="file-input" class="upload-browse-link">browse files</label>
           </div>
-          <div class="upload-zone-hint">PDF files only · Maximum 50 MB</div>
+          <div class="upload-zone-hint">
+            <span class="hint-pill">PDF format only</span>
+            <span class="hint-pill">Up to 50 MB</span>
+            <span class="hint-pill">Scanned OCR check enabled</span>
+          </div>
           <input type="file" id="file-input" accept=".pdf" hidden aria-label="File input" />
         </div>
       </div>
 
-      <!-- Processing Progress -->
+      <!-- Processing Progress Card -->
       <div class="upload-progress-card hidden" id="upload-progress-wrap">
         <div class="upload-progress-header">
           <div class="upload-progress-file">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            <span id="upload-file-name">document.pdf</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span id="upload-file-name" style="font-weight: 600;">document.pdf</span>
           </div>
-          <span class="upload-progress-status" id="upload-status-text">Processing…</span>
+          <span class="upload-progress-status badge badge-accent" id="upload-status-text">Processing…</span>
         </div>
         <div class="progress-bar">
           <div class="progress-bar-fill" id="upload-progress-fill"></div>
         </div>
-        <div class="upload-progress-detail" id="upload-step-detail">Reading document pages and preparing searchable content…</div>
+        <div class="upload-progress-detail" id="upload-step-detail">Parsing document structure and computing semantic chunk embeddings…</div>
       </div>
 
-      <!-- Document List -->
-      <div class="section-header-row" style="margin-top: 32px;">
-        <h2 class="section-heading">Uploaded Documents</h2>
+      <!-- Document Registry Table -->
+      <div class="section-header-row" style="margin-top: 36px;">
+        <div>
+          <h2 class="section-heading">Processed Specifications Registry</h2>
+          <p class="section-desc">Specifications currently indexed and ready for Q&amp;A, architecture mapping, and review.</p>
+        </div>
         <button class="btn btn-sm btn-ghost" id="refresh-docs-btn">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-          Refresh
+          Refresh Registry
         </button>
       </div>
 
@@ -276,15 +408,16 @@
           <table class="data-table" id="doc-registry-table">
             <thead>
               <tr>
-                <th>Document Name</th>
+                <th>Document Specification</th>
                 <th>Pages</th>
+                <th>Chunks</th>
                 <th>Uploaded</th>
-                <th>Status</th>
+                <th>Pipeline Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody id="doc-registry-body">
-              <tr><td colspan="5" class="table-empty">Loading documents…</td></tr>
+              <tr><td colspan="6" class="table-empty">Loading documents…</td></tr>
             </tbody>
           </table>
         </div>
@@ -293,110 +426,172 @@
 
 
     <!-- ══════════════════════════════════════════════════════════════════
-         PAGE 3: ASK A QUESTION (Q&A)
+         PAGE 3: TECHNICAL Q&A (GROUNDED CITATIONS)
          ════════════════════════════════════════════════════════════════ -->
-    <section class="page" id="panel-qa" role="main" aria-label="Ask a Question">
-      <div class="page-header">
-        <div class="page-title-area">
-          <h1>Ask a Question</h1>
-          <p class="page-subtitle">Type a question in plain language. AutoHLD searches your document and shows you the answer with references to the pages it came from.</p>
-        </div>
-      </div>
-
-      <!-- No document warning -->
+    <section class="page" id="panel-qa" role="main" aria-label="Technical Q&A">
+      <!-- No document warning notice -->
       <div class="inline-notice" id="qa-no-doc-notice" style="display: none;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <span>Please <button class="inline-link" onclick="switchTab('upload')">upload or select a document</button> before asking questions.</span>
-      </div>
-
-      <!-- Example Questions -->
-      <div class="suggestions-section">
-        <p class="suggestions-label">Try asking:</p>
-        <div class="suggestion-chips">
-          <button class="suggestion-chip" data-q="What is this document about?">What is this document about?</button>
-          <button class="suggestion-chip" data-q="Which components are described in this document?">Which components are described?</button>
-          <button class="suggestion-chip" data-q="How are the components connected to each other?">How are components connected?</button>
-          <button class="suggestion-chip" data-q="What software components are defined in this architecture?">List all software components</button>
-          <button class="suggestion-chip" data-q="List all P-Ports and R-Ports with their component associations.">List all ports</button>
-          <button class="suggestion-chip" data-q="Are there any possible inconsistencies in this document?">Any possible issues?</button>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div>
+          <strong>No Active Specification:</strong> Please <button class="inline-link" onclick="switchTab('upload')">select or upload a document</button> before asking architectural questions.
         </div>
       </div>
 
-      <!-- Question Input -->
-      <form class="question-form" id="qa-form" onsubmit="return false;">
-        <div class="question-input-wrap">
-          <input
-            type="text"
-            id="qa-input"
-            class="question-input"
-            placeholder="Type your question here…"
-            autocomplete="off"
-            aria-label="Question input"
-          />
-          <button class="btn btn-primary question-submit-btn" id="qa-submit-btn" type="submit">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-            Ask
-          </button>
-        </div>
-      </form>
+      <!-- ChatGPT-Style Full-Height Conversational Workspace -->
+      <div class="qa-chatgpt-workspace" id="qa-workspace">
+        <!-- Collapsible Left Chat-History Sidebar -->
+        <aside class="qa-history-sidebar" id="qa-history-sidebar" aria-label="Chat History">
+          <div class="qa-history-sidebar-header">
+            <div class="qa-sidebar-top-row">
+              <!-- Three-line menu button inside sidebar to collapse it -->
+              <button class="qa-icon-btn qa-menu-toggle-btn" id="qa-menu-btn-inside" onclick="QueryModule.toggleHistorySidebar()" title="Collapse chat history" aria-label="Collapse chat history">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="3" y1="6" x2="21" y2="6"/>
+                  <line x1="3" y1="12" x2="21" y2="12"/>
+                  <line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+              </button>
+              <span class="qa-sidebar-brand-label">Technical Q&amp;A</span>
+            </div>
 
-      <!-- Loading -->
-      <div class="answer-loading hidden" id="qa-loading" aria-live="polite">
-        <div class="loading-spinner"></div>
-        <span>Searching document and generating answer…</span>
-      </div>
+            <!-- New Chat Button -->
+            <button class="qa-new-chat-btn" id="qa-new-chat-btn" onclick="QueryModule.startNewChat()" title="Start a new separate conversation">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>New Chat</span>
+            </button>
 
-      <!-- Answer -->
-      <div class="answer-card hidden" id="qa-answer-container">
-        <div class="answer-card-header">
-          <div class="answer-badge">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            Answer based on document
+            <!-- Search past chats -->
+            <div class="qa-history-search-wrap">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="qa-history-search" class="qa-history-search" placeholder="Search chats…" aria-label="Search conversations" oninput="QueryModule.filterHistory(this.value)" />
+            </div>
           </div>
-          <span class="answer-model-info" id="qa-meta-model"></span>
-        </div>
-        <div class="answer-body" id="qa-answer-text"></div>
 
-        <div class="sources-section">
-          <h3 class="sources-title">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
-            Source Pages
-          </h3>
-          <div class="sources-grid" id="qa-citations-grid"></div>
-        </div>
-      </div>
+          <div class="qa-history-group-header">
+            <span>Conversations</span>
+            <span class="badge badge-accent qa-history-count-badge" id="qa-history-count">0</span>
+          </div>
 
-      <!-- Question History -->
-      <div class="history-section" style="margin-top: 40px;">
-        <h2 class="section-heading">Previous Questions</h2>
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Time</th>
-                <th>Question</th>
-                <th>Sources Found</th>
-              </tr>
-            </thead>
-            <tbody id="qa-history-body">
-              <tr><td colspan="3" class="table-empty">No questions asked yet.</td></tr>
-            </tbody>
-          </table>
-        </div>
+          <!-- List of previous conversations with clickable titles -->
+          <div class="qa-history-list" id="qa-history-list" role="list">
+            <!-- Dynamically populated -->
+          </div>
+
+          <div class="qa-history-sidebar-footer">
+            <button class="btn btn-ghost btn-xs" onclick="QueryModule.clearAllConversations()" title="Clear all conversation history">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              Clear History
+            </button>
+          </div>
+        </aside>
+
+        <!-- Clean, Full-Height Main Chat Area -->
+        <main class="qa-main-chat-area" id="qa-main-chat-area">
+          <!-- Top Bar with Three-Line Menu Button & Active Conversation Title -->
+          <div class="qa-chat-topbar">
+            <div class="qa-topbar-left">
+              <!-- Three-line menu button to toggle sidebar -->
+              <button class="qa-icon-btn qa-menu-toggle-btn" id="qa-menu-btn-topbar" onclick="QueryModule.toggleHistorySidebar()" title="Toggle sidebar menu" aria-label="Toggle chat history sidebar">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="3" y1="6" x2="21" y2="6"/>
+                  <line x1="3" y1="12" x2="21" y2="12"/>
+                  <line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+              </button>
+
+              <div class="qa-active-chat-pill">
+                <span class="status-dot"></span>
+                <span id="qa-active-chat-title" class="qa-active-title-text">AutoHLD Engineering Assistant</span>
+              </div>
+            </div>
+
+            <div class="qa-topbar-right">
+              <button class="btn btn-ghost btn-sm qa-topbar-new-btn" onclick="QueryModule.startNewChat()" title="Start a fresh conversation">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>New Chat</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Suggestion Chips / Templates Bar -->
+          <div class="qa-templates-bar" id="qa-templates-bar">
+            <div class="qa-templates-scroll">
+              <button class="suggestion-chip" data-q="What is the overall architecture and primary objective of this system?">System Architecture</button>
+              <button class="suggestion-chip" data-q="Which Software Components (SWCs) are defined, and what are their respective responsibilities?">SWC Responsibilities</button>
+              <button class="suggestion-chip" data-q="List all P-Ports and R-Ports with their component associations and direction.">Port Catalog</button>
+              <button class="suggestion-chip" data-q="How is thermal management coordinated with battery management and power control?">Thermal &amp; Power Flow</button>
+              <button class="suggestion-chip" data-q="Are there any port direction mismatches, undefined interfaces, or inconsistencies mentioned?">Identify Inconsistencies</button>
+              <button class="suggestion-chip" data-q="What safety mechanisms, fault flags, and ASIL classifications are described in this document?">Safety &amp; Fault Status</button>
+            </div>
+          </div>
+
+          <!-- Full-Height Conversational Chat Stream (AI on left, User on right) -->
+          <div class="qa-chat-stream" id="qa-chat-stream">
+            <!-- Initial Assistant Welcome Message -->
+            <div class="chat-msg chat-msg--assistant">
+              <div class="chat-avatar">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/></svg>
+              </div>
+              <div class="chat-bubble">
+                <div class="chat-sender">AutoHLD Engineering Assistant</div>
+                <div class="chat-text">
+                  <p>Welcome to the AutoHLD technical assistant. I analyze the active specification using semantic vector retrieval and synthesize grounded answers with explicit page references.</p>
+                  <p>Select a template above or type your technical question below.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Real-time Loading Spinner -->
+          <div class="answer-loading hidden" id="qa-loading" aria-live="polite">
+            <div class="loading-spinner"></div>
+            <div>
+              <span style="font-weight: 600;">Searching specification vector index…</span>
+              <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Extracting top-5 semantic chunks &amp; verifying citation grounding</div>
+            </div>
+          </div>
+
+          <!-- Fixed Message Input at the Bottom -->
+          <div class="qa-input-container">
+            <form class="qa-question-form" id="qa-form" onsubmit="return false;">
+              <div class="qa-input-wrap">
+                <input
+                  type="text"
+                  id="qa-input"
+                  class="qa-input"
+                  placeholder="Ask an architectural, interface, port, or safety question…"
+                  autocomplete="off"
+                  aria-label="Question input"
+                />
+                <button class="btn btn-primary qa-submit-btn" id="qa-submit-btn" type="submit" aria-label="Send message">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  <span>Ask</span>
+                </button>
+              </div>
+            </form>
+            <div class="qa-input-disclaimer">
+              Answers are grounded in the active AUTOSAR HLD specification chunks with traceable page citations.
+            </div>
+          </div>
+        </main>
       </div>
     </section>
 
 
     <!-- ══════════════════════════════════════════════════════════════════
-         PAGE 4: ARCHITECTURE OVERVIEW
+         PAGE 4: ARCHITECTURE OVERVIEW (PAGE TRACEABILITY)
          ════════════════════════════════════════════════════════════════ -->
-    <section class="page" id="panel-overview" role="main" aria-label="Architecture Overview">
+    <section class="page" id="panel-overview" role="main" aria-label="Page Traceability">
       <div class="page-header">
         <div class="page-title-area">
-          <h1>Architecture Overview</h1>
-          <p class="page-subtitle">A high-level view of the software components, interfaces, and signals identified in your document. Select a document and run the analysis to populate this view.</p>
+          <h1>Architecture Traceability Matrix</h1>
+          <p class="page-subtitle">Page-by-page mapping of software components, ports, interfaces, and signals identified throughout the specification document.</p>
         </div>
         <div class="page-actions">
+          <button class="btn btn-secondary" onclick="switchTab('relationships')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/></svg>
+            View Interactive Diagram
+          </button>
           <button class="btn btn-primary" id="overview-extract-btn">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
             Identify Components
@@ -407,69 +602,72 @@
       <div class="info-banner">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         <div>
-          <strong>About this view:</strong>
-          Components and interfaces shown here are identified from the document text. Results depend on the document's content and format. Select a document above and click "Identify Components" to begin.
+          <strong>Document Traceability:</strong>
+          Every entity extracted is traceable back to its originating page number and section in the source PDF. Click any page row to inspect corresponding entities.
         </div>
       </div>
 
-      <!-- Summary Cards -->
+      <!-- Summary Stats Cards -->
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-icon stat-icon--blue">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg>
           </div>
           <div class="stat-body">
             <div class="stat-value" id="overview-swc-count">—</div>
-            <div class="stat-label">Software Components</div>
-            <div class="stat-desc">Application-layer components identified in the document</div>
+            <div class="stat-label">Software Components (SWCs)</div>
+            <div class="stat-desc">Application &amp; sensor/actuator components</div>
           </div>
         </div>
+
         <div class="stat-card">
           <div class="stat-icon stat-icon--purple">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 16.98h-5.99c-1.1 0-1.95.94-2.48 1.9A4 4 0 0 1 2 17c.01-.7.2-1.4.57-2"/><path d="m6 17 3.13-5.78c.53-.97.1-2.18-.5-3.1a4 4 0 1 1 6.89-4.06"/><path d="m12 6 3.13 5.73C15.66 12.7 16.9 13 18 13a4 4 0 0 1 0 8"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 16.98h-5.99c-1.1 0-1.95.94-2.48 1.9A4 4 0 0 1 2 17c.01-.7.2-1.4.57-2"/><path d="m6 17 3.13-5.78c.53-.97.1-2.18-.5-3.1a4 4 0 1 1 6.89-4.06"/><path d="m12 6 3.13 5.73C15.66 12.7 16.9 13 18 13a4 4 0 0 1 0 8"/></svg>
           </div>
           <div class="stat-body">
             <div class="stat-value" id="overview-iface-count">—</div>
             <div class="stat-label">Interfaces</div>
-            <div class="stat-desc">Defined ways components exchange information</div>
+            <div class="stat-desc">Sender-Receiver &amp; Client-Server interfaces</div>
           </div>
         </div>
+
         <div class="stat-card">
-          <div class="stat-icon stat-icon--green">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>
+          <div class="stat-icon stat-icon--cyan">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>
           </div>
           <div class="stat-body">
             <div class="stat-value" id="overview-port-count">—</div>
-            <div class="stat-label">Ports</div>
-            <div class="stat-desc">Connection points between components</div>
+            <div class="stat-label">Ports (P &amp; R)</div>
+            <div class="stat-desc">Provided and required communication endpoints</div>
           </div>
         </div>
+
         <div class="stat-card">
-          <div class="stat-icon stat-icon--orange">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          <div class="stat-icon stat-icon--green">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
           </div>
           <div class="stat-body">
             <div class="stat-value" id="overview-signal-count">—</div>
-            <div class="stat-label">Signals & Functions</div>
-            <div class="stat-desc">Signal definitions and execution units</div>
+            <div class="stat-label">Signals &amp; Execution Runnables</div>
+            <div class="stat-desc">Discrete variables &amp; runnable entities</div>
           </div>
         </div>
       </div>
 
-      <!-- Page distribution -->
-      <h2 class="section-heading" style="margin-top: 32px; margin-bottom: 16px;">Content by Page</h2>
+      <!-- Page Distribution Table -->
+      <h2 class="section-heading" style="margin-top: 36px; margin-bottom: 16px;">Traceability by Specification Page</h2>
       <div class="table-wrap">
         <table class="data-table">
           <thead>
             <tr>
-              <th>Page</th>
+              <th style="width: 100px;">Page</th>
               <th>Components Found</th>
               <th>Interfaces &amp; Ports</th>
-              <th>Content Type</th>
+              <th>Content Classification</th>
             </tr>
           </thead>
           <tbody id="overview-distribution-body">
-            <tr><td colspan="4" class="table-empty">Select a document and click "Identify Components" to see page-by-page details.</td></tr>
+            <tr><td colspan="4" class="table-empty">Select a document and click "Identify Components" to view traceability matrix.</td></tr>
           </tbody>
         </table>
       </div>
@@ -477,74 +675,79 @@
 
 
     <!-- ══════════════════════════════════════════════════════════════════
-         PAGE 5: COMPONENTS & INTERFACES
+         PAGE 5: COMPONENT CATALOG
          ════════════════════════════════════════════════════════════════ -->
-    <section class="page" id="panel-components" role="main" aria-label="Components">
+    <section class="page" id="panel-components" role="main" aria-label="Component Catalog">
       <div class="page-header">
         <div class="page-title-area">
-          <h1>Components &amp; Interfaces</h1>
-          <p class="page-subtitle">All software components, interfaces, ports, and signals identified in your document. Click "Identify Components" to run the analysis on your selected document.</p>
+          <h1>Component Catalog</h1>
+          <p class="page-subtitle">Comprehensive registry of all software components, interfaces, ports, and signals extracted from the active specification.</p>
         </div>
         <div class="page-actions">
           <button class="btn btn-primary" id="entities-extract-btn">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
             Identify Components
           </button>
-          <button class="btn btn-ghost btn-sm" id="entities-export-csv-btn">Export CSV</button>
-          <button class="btn btn-ghost btn-sm" id="entities-export-json-btn">Export JSON</button>
+          <button class="btn btn-secondary btn-sm" id="entities-export-csv-btn">Export CSV</button>
+          <button class="btn btn-secondary btn-sm" id="entities-export-json-btn">Export JSON</button>
         </div>
       </div>
 
       <div class="filter-bar">
         <div class="filter-pills" id="entity-filter-pills">
-          <button class="filter-pill active" data-filter="all">All</button>
-          <button class="filter-pill" data-filter="component">Components</button>
+          <button class="filter-pill active" data-filter="all">All Entities</button>
+          <button class="filter-pill" data-filter="component">SWCs</button>
           <button class="filter-pill" data-filter="interface">Interfaces</button>
           <button class="filter-pill" data-filter="port">Ports</button>
           <button class="filter-pill" data-filter="signal">Signals</button>
         </div>
-        <input type="text" id="entity-search" class="search-field" placeholder="Search by name…" aria-label="Search components" />
+        <div class="search-input-wrap">
+          <input type="text" id="entity-search" class="search-field" placeholder="Search by name, interface, or page…" aria-label="Search components" />
+        </div>
       </div>
 
       <div class="table-wrap">
         <table class="data-table" id="entities-table">
           <thead>
             <tr>
-              <th>Name</th>
+              <th>Identifier Name</th>
               <th>Type</th>
-              <th>Details</th>
-              <th>Page</th>
+              <th>Subtype / Details</th>
+              <th>Source Page</th>
               <th>Confidence</th>
             </tr>
           </thead>
           <tbody id="entities-table-body">
-            <tr><td colspan="5" class="table-empty">Select a document to see its components and interfaces.</td></tr>
+            <tr><td colspan="5" class="table-empty">Select a document to see its component inventory.</td></tr>
           </tbody>
         </table>
       </div>
 
-      <div class="info-banner" style="margin-top: 20px;">
+      <div class="info-banner" style="margin-top: 24px;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         <div>
-          <strong>About confidence scores:</strong> Components are identified using naming patterns in the document text. A higher confidence score means the name matched a stronger pattern — not that the component is definitely present or correct. Always verify against the original document.
+          <strong>Confidence Ratings:</strong> Confidence is scored based on AUTOSAR regex pattern matching strength and context proximity. High confidence indicates standard AUTOSAR naming conventions (e.g. `_Prov`, `_Req`, `_If`).
         </div>
       </div>
     </section>
 
 
     <!-- ══════════════════════════════════════════════════════════════════
-         PAGE 6: CONNECTIONS (RELATIONSHIPS / GRAPH)
+         PAGE 6: INTERACTIVE ARCHITECTURE GRAPH (RELATIONSHIPS)
          ════════════════════════════════════════════════════════════════ -->
-    <section class="page" id="panel-relationships" role="main" aria-label="Connections">
+    <section class="page" id="panel-relationships" role="main" aria-label="Architecture Graph">
       <div class="page-header">
         <div class="page-title-area">
-          <h1>Connections</h1>
-          <p class="page-subtitle">Shows how components are connected to each other through their ports and interfaces. These connections are inferred from the document — they may not capture every relationship.</p>
+          <h1>Interactive Architecture Graph</h1>
+          <p class="page-subtitle">Visual representation of software components, communication ports, and interface bindings inferred from the specification.</p>
         </div>
         <div class="page-actions">
-          <button class="btn btn-ghost btn-sm" id="rel-refresh-btn">
+          <button class="btn btn-secondary btn-sm" id="rel-zoom-in" title="Zoom In">＋ Zoom In</button>
+          <button class="btn btn-secondary btn-sm" id="rel-zoom-out" title="Zoom Out">－ Zoom Out</button>
+          <button class="btn btn-secondary btn-sm" id="rel-zoom-reset" title="Reset Zoom">⟲ Reset</button>
+          <button class="btn btn-primary btn-sm" id="rel-refresh-btn">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-            Refresh
+            Refresh Graph
           </button>
         </div>
       </div>
@@ -552,39 +755,69 @@
       <div class="info-banner info-banner--warning">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         <div>
-          <strong>Inferred connections:</strong> These relationships are estimated by matching port and interface names — not by parsing a formal AUTOSAR file. Use them as a guide, not as a definitive connection map.
+          <strong>Inferred Component Bindings:</strong> Connections are synthesized by matching P-Port (provider) and R-Port (requirer) definitions against defined interfaces in the document. Click any component card to inspect its ports in the inspector drawer.
         </div>
       </div>
 
-      <div class="filter-bar">
-        <div style="display:flex; align-items:center; gap:10px;">
-          <label class="filter-label" for="rel-swc-filter">Filter by component:</label>
-          <select id="rel-swc-filter" class="select-field">
-            <option value="all">All Components</option>
+      <!-- Controls & Filter Toolbar -->
+      <div class="filter-bar diagram-toolbar">
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap: wrap;">
+          <label class="filter-label" for="rel-swc-filter">Filter Component:</label>
+          <select id="rel-swc-filter" class="select-field" style="min-width: 220px;">
+            <option value="all">All Software Components</option>
+          </select>
+
+          <label class="filter-label" for="rel-port-type-filter" style="margin-left: 8px;">Port Direction:</label>
+          <select id="rel-port-type-filter" class="select-field" style="min-width: 160px;">
+            <option value="all">All (P-Ports &amp; R-Ports)</option>
+            <option value="p-port">P-Ports Only (Providers)</option>
+            <option value="r-port">R-Ports Only (Requirers)</option>
           </select>
         </div>
+
+        <div class="search-input-wrap">
+          <input type="text" id="rel-search-input" class="search-field" placeholder="Search component or interface…" aria-label="Search architecture graph" />
+        </div>
       </div>
 
-      <!-- Flow Diagram -->
-      <div class="flow-diagram" id="rel-flow-diagram">
-        <div class="table-empty">Select a document to see component connections.</div>
+      <!-- Interactive Graph Container & Inspector Panel -->
+      <div class="diagram-wrapper">
+        <div class="flow-diagram-container" id="rel-diagram-viewport">
+          <div class="flow-diagram" id="rel-flow-diagram">
+            <div class="table-empty">Select a document to render architecture topology.</div>
+          </div>
+        </div>
+
+        <!-- Component Details Inspector Drawer -->
+        <aside class="component-inspector hidden" id="component-details-drawer">
+          <div class="inspector-header">
+            <div class="inspector-title" id="inspector-comp-name">Component Inspector</div>
+            <button class="icon-btn-sm" id="inspector-close-btn" aria-label="Close Inspector">✕</button>
+          </div>
+          <div class="inspector-body" id="inspector-body">
+            <div style="font-size: 13px; color: var(--text-muted);">Click any component node in the diagram to inspect its ports, signals, and interface contracts.</div>
+          </div>
+        </aside>
       </div>
 
-      <!-- Connections Table -->
-      <h2 class="section-heading" style="margin-top: 32px; margin-bottom: 16px;">All Connections</h2>
+      <!-- Tabular Connection Matrix -->
+      <div class="section-header-row" style="margin-top: 36px; margin-bottom: 14px;">
+        <h2 class="section-heading">Component Interface Bindings Table</h2>
+        <span class="badge badge-accent" id="rel-connection-count">0 bindings</span>
+      </div>
       <div class="table-wrap">
         <table class="data-table">
           <thead>
             <tr>
-              <th>From Component</th>
-              <th>Connection Type</th>
-              <th>To Interface / Port</th>
-              <th>Page</th>
-              <th>Confidence</th>
+              <th>Source Component</th>
+              <th>Relationship</th>
+              <th>Target Interface / Port</th>
+              <th>Source Page</th>
+              <th>Binding Confidence</th>
             </tr>
           </thead>
           <tbody id="rel-table-body">
-            <tr><td colspan="5" class="table-empty">No connections found yet.</td></tr>
+            <tr><td colspan="5" class="table-empty">No connections extracted yet.</td></tr>
           </tbody>
         </table>
       </div>
@@ -592,78 +825,94 @@
 
 
     <!-- ══════════════════════════════════════════════════════════════════
-         PAGE 7: REVIEW FINDINGS (INCONSISTENCY)
+         PAGE 7: ENGINEERING REVIEW (INCONSISTENCY AUDIT)
          ════════════════════════════════════════════════════════════════ -->
-    <section class="page" id="panel-consistency" role="main" aria-label="Review Findings">
+    <section class="page" id="panel-consistency" role="main" aria-label="Engineering Review">
       <div class="page-header">
         <div class="page-title-area">
-          <h1>Review Findings</h1>
-          <p class="page-subtitle">AutoHLD checks the document for possible issues such as undefined interfaces, missing sections, and conflicting descriptions. Each finding requires review by an engineer.</p>
+          <h1>Engineering Review &amp; Inconsistency Audit</h1>
+          <p class="page-subtitle">Automated structural verification of port directions, undefined interfaces, missing sections, and signal mismatches.</p>
         </div>
         <div class="page-actions">
           <button class="btn btn-primary" id="consistency-run-btn">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            Run Check
+            Run Consistency Audit
           </button>
         </div>
       </div>
 
+      <!-- Prominent Engineering Notice & Distinction Banner -->
       <div class="info-banner info-banner--warning" id="consistency-disclaimer-box">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         <div>
-          <strong>Important:</strong> These are observations from automated pattern checks — not a formal AUTOSAR validation. Each finding is a possible issue that needs review by an engineer before any action is taken. A finding does not confirm an error.
+          <strong>Engineering Audit Notice:</strong> These findings represent automated heuristic pattern observations — NOT a certified formal AUTOSAR compliance verification.
+          Every issue is flagged as <em>AI-Observed (Unverified)</em> until reviewed and dispositioned by a qualified automotive systems engineer.
         </div>
       </div>
 
+      <!-- Filter Bar with Severity and Status -->
       <div class="filter-bar">
         <div class="filter-pills" id="consistency-filter-pills">
-          <button class="filter-pill active" data-sev="all">All (<span id="cnt-total">0</span>)</button>
+          <button class="filter-pill active" data-sev="all">All Findings (<span id="cnt-total">0</span>)</button>
           <button class="filter-pill filter-pill--warning" data-sev="warning">Warnings (<span id="cnt-warning">0</span>)</button>
           <button class="filter-pill filter-pill--review" data-sev="review">Needs Review (<span id="cnt-review">0</span>)</button>
           <button class="filter-pill filter-pill--info" data-sev="info">Informational (<span id="cnt-info">0</span>)</button>
         </div>
+        <div class="search-input-wrap">
+          <input type="text" id="findings-search" class="search-field" placeholder="Search findings by keyword, page, or category…" aria-label="Search review findings" />
+        </div>
       </div>
 
+      <!-- Structured Engineering Review Findings List -->
       <div class="findings-list" id="findings-container">
-        <div class="table-empty" style="padding: 40px 20px;">Click "Run Check" to evaluate the document against consistency rules.</div>
+        <div class="table-empty" style="padding: 40px 20px;">
+          Click <strong>Run Consistency Audit</strong> to inspect the specification against AUTOSAR design rules.
+        </div>
       </div>
     </section>
 
 
     <!-- ══════════════════════════════════════════════════════════════════
-         PAGE 8: REPORTS
+         PAGE 8: EXECUTIVE REPORTS (PDF & AUDIT EXPORT)
          ════════════════════════════════════════════════════════════════ -->
-    <section class="page" id="panel-reports" role="main" aria-label="Reports">
+    <section class="page" id="panel-reports" role="main" aria-label="Executive Reports">
       <div class="page-header">
         <div class="page-title-area">
-          <h1>Analysis Report</h1>
-          <p class="page-subtitle">A structured summary of the document analysis, including extracted components, findings, and questions asked. Review the report and export it for your team.</p>
+          <h1>Engineering Audit Report</h1>
+          <p class="page-subtitle">Comprehensive 13-section formal engineering review document covering metadata, architecture inventory, port bindings, consistency audit findings, and grounded Q&amp;A history.</p>
         </div>
         <div class="page-actions">
-          <button class="btn btn-primary" id="report-generate-btn">Generate Report</button>
-          <a class="btn btn-ghost" id="report-download-btn" href="#" download>Download</a>
-          <button class="btn btn-ghost" id="report-copy-btn">Copy Text</button>
-          <button class="btn btn-ghost" onclick="window.print();">Print / PDF</button>
+          <button class="btn btn-primary" id="report-generate-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Generate Report
+          </button>
+          <a class="btn btn-secondary" id="report-download-btn" href="#" download>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download PDF
+          </a>
+          <button class="btn btn-secondary" id="report-copy-btn">Copy Markdown</button>
+          <button class="btn btn-ghost" onclick="window.print();">Print / Export</button>
         </div>
       </div>
 
       <div class="report-options-bar" id="report-toolbar">
         <label class="report-option-label">
           <input type="checkbox" id="report-qa-toggle" checked />
-          Include question &amp; answer history
+          Include Grounded Q&amp;A Historical Log
         </label>
         <span class="report-disclaimer">
-          This report is an AI-assisted analysis — not a formal AUTOSAR compliance validation. Human review is required before acting on any finding.
+          AI-Assisted Engineering Analysis · Human Engineering Review Mandatory Prior to Sign-off
         </span>
       </div>
 
+      <!-- Live Report Preview Frame -->
       <div class="report-container" id="report-preview">
         <div class="home-empty-state">
           <div class="empty-icon">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
           </div>
-          <h3>No report generated yet</h3>
-          <p>Select a document, then click <strong>Generate Report</strong>.</p>
+          <h3>No Engineering Report Generated Yet</h3>
+          <p>Select a specification and click <strong>Generate Report</strong> to compile the complete audit dossier.</p>
         </div>
       </div>
     </section>
@@ -675,56 +924,58 @@
     <section class="page" id="panel-settings" role="main" aria-label="Settings">
       <div class="page-header">
         <div class="page-title-area">
-          <h1>Settings</h1>
-          <p class="page-subtitle">Manage application preferences and view technical information about the AI engine.</p>
+          <h1>System Configuration &amp; Settings</h1>
+          <p class="page-subtitle">Configure application theme, inspect local AI inference engine, and view pipeline hyperparameters.</p>
         </div>
       </div>
 
       <div class="settings-section">
-        <h2 class="section-heading">Appearance</h2>
+        <h2 class="section-heading">Visual Appearance</h2>
         <div class="settings-card">
           <div class="settings-row">
             <div class="settings-row-info">
-              <div class="settings-row-label">Theme</div>
-              <div class="settings-row-desc">Choose between dark and light mode</div>
+              <div class="settings-row-label">Interface Color Theme</div>
+              <div class="settings-row-desc">Toggle between automotive navy dark mode and high-contrast daylight mode.</div>
             </div>
-            <button id="settings-theme-toggle" class="btn btn-ghost" onclick="document.getElementById('theme-toggle').click()">Toggle Theme</button>
+            <button id="settings-theme-toggle" class="btn btn-secondary" onclick="document.getElementById('theme-toggle').click()">Toggle Theme</button>
           </div>
         </div>
       </div>
 
       <div class="settings-section">
-        <h2 class="section-heading">AI Engine</h2>
+        <h2 class="section-heading">AI Inference &amp; RAG Engine</h2>
         <div class="settings-card">
           <div class="settings-row">
             <div class="settings-row-info">
-              <div class="settings-row-label">Engine Status</div>
-              <div class="settings-row-desc">Current status of the AI model used to generate answers</div>
+              <div class="settings-row-label">Engine Connectivity</div>
+              <div class="settings-row-desc">Local Ollama inference client status and connected embedding model.</div>
             </div>
             <div class="settings-status-pill" id="settings-llm-status">
               <span class="status-dot online" id="settings-status-dot"></span>
-              <span id="settings-llm-label">Checking…</span>
+              <span id="settings-llm-label">Checking engine…</span>
             </div>
           </div>
           <div class="settings-row" style="border-top: 1px solid var(--border);">
             <div class="settings-row-info">
-              <div class="settings-row-label">How answers are generated</div>
-              <div class="settings-row-desc">AutoHLD searches your document for relevant sections, then uses an AI model to compose an answer based on those sections. The source pages are always shown so you can verify the answer against the original document.</div>
+              <div class="settings-row-label">RAG Pipeline Architecture</div>
+              <div class="settings-row-desc">
+                Text chunking: 1800 characters with 200-char overlap · Embedding: all-MiniLM-L6-v2 (384-dim) · Cosine similarity threshold: 0.30 · Citations synthesized exclusively from retrieved document chunks.
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <div class="settings-section">
-        <h2 class="section-heading">Document Selection</h2>
+        <h2 class="section-heading">Specification Context</h2>
         <div class="settings-card">
           <div class="settings-row">
             <div class="settings-row-info">
-              <div class="settings-row-label">Active Document</div>
-              <div class="settings-row-desc">The document currently selected for analysis</div>
+              <div class="settings-row-label">Active Document Selection</div>
+              <div class="settings-row-desc">Switch the currently active specification across all analysis modules.</div>
             </div>
             <div class="settings-doc-select-wrap">
-              <select id="doc-selector-settings" class="select-field" aria-label="Select document for analysis" style="min-width: 240px;">
+              <select id="doc-selector-settings" class="select-field" aria-label="Select document for analysis" style="min-width: 260px;">
                 <option value="">— No document selected —</option>
               </select>
             </div>
@@ -743,16 +994,16 @@
 <div class="sidebar-overlay hidden" id="sidebar-overlay"></div>
 
 <!-- ── JavaScript Modules ────────────────────────────────────────────────── -->
-<script src="/js/api.js?v=2"></script>
-<script src="/js/app.js?v=2"></script>
-<script src="/js/dashboard.js?v=2"></script>
-<script src="/js/upload.js?v=2"></script>
-<script src="/js/overview.js?v=2"></script>
-<script src="/js/query.js?v=2"></script>
-<script src="/js/components.js?v=2"></script>
-<script src="/js/relationships.js?v=2"></script>
-<script src="/js/analysis.js?v=2"></script>
-<script src="/js/reports.js?v=2"></script>
+<script src="/js/api.js?v=5"></script>
+<script src="/js/app.js?v=5"></script>
+<script src="/js/dashboard.js?v=5"></script>
+<script src="/js/upload.js?v=5"></script>
+<script src="/js/overview.js?v=5"></script>
+<script src="/js/query.js?v=5"></script>
+<script src="/js/components.js?v=5"></script>
+<script src="/js/relationships.js?v=5"></script>
+<script src="/js/analysis.js?v=5"></script>
+<script src="/js/reports.js?v=5"></script>
 
 </body>
 </html>

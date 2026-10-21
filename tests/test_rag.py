@@ -227,3 +227,18 @@ class TestRAGPipeline:
             mock_llm.side_effect = ConnectionError("Ollama not reachable")
             with pytest.raises(ConnectionError):
                 ask(TEST_DOC_ID, "What are the signal definitions?")
+
+    def test_ask_stream_yields_events(self, ingested_doc):
+        from backend.pipeline.rag import ask_stream
+        with patch("backend.pipeline.rag.llm_client.stream_generate") as mock_stream:
+            mock_stream.return_value = iter([
+                {"type": "token", "content": "The "},
+                {"type": "token", "content": "BMS system."},
+                {"type": "done", "model": "ollama/gemma3:4b", "full_text": "The BMS system."}
+            ])
+            events = list(ask_stream(TEST_DOC_ID, "What is the architecture?"))
+
+        event_names = [line.split("event: ")[1].split("\n")[0] for line in events if line.startswith("event: ")]
+        assert "sources" in event_names
+        assert "token" in event_names
+        assert "done" in event_names

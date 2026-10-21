@@ -1,17 +1,13 @@
 """
-prompt_builder.py — Assemble the final prompt sent to the LLM.
+prompt_builder.py — Assemble grounded, multi-excerpt prompts for AutoHLD.
 
-Responsibility:
-  Combine the system instruction, retrieved document chunks (as grounded
-  context), and the user's question into a single prompt string.
-
-Design rules enforced here:
-  1. The LLM is explicitly instructed to answer ONLY from the provided context.
-  2. If the answer is not in the context, it must say so — no invention.
-  3. Every piece of context is labelled with [Page N | Section: X] so the LLM
-     can reference page numbers accurately in its answer.
-  4. The system prompt never leaks implementation details to the user.
-  5. Answers must be concise and engineering-focused.
+Responsibilities:
+  1. Provide an engineering persona prompt that strictly grounds answers in document excerpts.
+  2. Prevent false refusals: instruct the model to synthesize answers across multiple excerpts
+     and handle natural-language summaries, synonyms, and partial coverage gracefully.
+  3. Enforce accurate page-level citations: (Page N) or (Pages N, M).
+  4. Ensure clean, structured output without duplicate points or boilerplate repetitions.
+  5. Distinguish document-verified facts from genuine information gaps.
 """
 
 from __future__ import annotations
@@ -19,35 +15,31 @@ from __future__ import annotations
 from backend.pipeline.retriever import RetrievedChunk
 
 # ── System prompt ─────────────────────────────────────────────────────────────
-# This is the engineering persona instruction sent as the system/context role.
-# It is never shown to the user in the UI.
+_SYSTEM_PROMPT = """You are the AutoHLD Technical Q&A Assistant, an automotive systems engineering expert embedded in an AUTOSAR design review platform.
 
-_SYSTEM_PROMPT = """You are an AUTOSAR architecture analysis assistant embedded in an engineering document review tool.
+Your mission is to answer engineering questions accurately, concisely, and directly using ONLY the evidence present in the provided document excerpts.
 
-Your role is to answer questions about the AUTOSAR High-Level Design (HLD) document that has been uploaded by the engineer.
+CONCISE ENGINEERING INSTRUCTIONS:
+1. Grounding & Evidence:
+   - Answer using ONLY facts and architecture in the provided excerpts. Do NOT invent technical data, port names, or specifications not in the excerpts.
+   - If the excerpts contain no relevant evidence whatsoever about the asked topic, respond strictly with:
+     "This information was not found in the selected document."
 
-STRICT RULES:
-1. Answer ONLY using information present in the document excerpts provided below.
-2. If the answer cannot be found in the excerpts, respond with exactly:
-   "The information was not found in the uploaded document."
-3. Do not use any knowledge from your training data about AUTOSAR, automotive systems, or software architecture unless it is directly confirmed by the document excerpts.
-4. Always cite the page number when you reference specific information. Format citations as: (Page N) or (Pages N, M).
-5. Be precise and technical. Use the exact component names, port names, interface names, and signal names as they appear in the document.
-6. Keep answers concise. Do not pad with unnecessary explanation.
-7. Do not speculate or infer beyond what the document states.
-8. If asked about something partially covered, answer only the part that is covered and note what is missing.
+2. Concise, Focused Answers:
+   - Answer ONLY the specific question asked. Do not dump unrequested background sections or essay introductions.
+   - Keep answers direct, concise, and technical (target: 100–250 words using clean bullet points or short paragraphs).
+   - Eliminate repetition: state each specification or fact exactly once.
+
+3. Technical Precision:
+   - Give exact component names, port directions (P-Port / R-Port), interface names, signals, and ASIL ratings as documented.
+
+4. Page Citations:
+   - Always cite source page numbers for every document-supported claim: (Page N) or (Pages N, M).
 """
 
-# ── Context block template ────────────────────────────────────────────────────
 
 def _format_chunk(chunk: RetrievedChunk) -> str:
-    """
-    Format a single retrieved chunk as a labelled context block.
-
-    Example output:
-        [Page 12 | Section: 2.1 BatteryManagement SWC]
-        The BatteryManagement SWC provides voltage monitoring via BattV_Prov...
-    """
+    """Format a single retrieved chunk as a labelled context block."""
     section_label = f" | Section: {chunk.section}" if chunk.section else ""
     header = f"[Page {chunk.page_num}{section_label}]"
     return f"{header}\n{chunk.text.strip()}"
@@ -63,47 +55,36 @@ def build_prompt(
     """
     Build the message list for the LLM.
 
-    Returns a list of role/content dicts compatible with both the Ollama
+    Returns a list of role/content dicts compatible with both Ollama
     and OpenAI chat completion APIs:
         [
             {"role": "system",  "content": "..."},
             {"role": "user",    "content": "..."},
         ]
-
-    Parameters
-    ----------
-    question : str
-        The engineer's natural language question.
-    chunks : list[RetrievedChunk]
-        Top-k chunks from the retriever, ordered by relevance.
-    filename : str
-        Original document filename, used as a label in the context header.
-
-    Returns
-    -------
-    list[dict]
-        Chat message list ready to send to the LLM client.
     """
-    # Build the context section from retrieved chunks
     if chunks:
-        doc_label = f'Document: "{filename}"' if filename else "the uploaded document"
+        doc_label = f'"{filename}"' if filename else "the uploaded document"
+        numbered_blocks = []
+        for i, c in enumerate(chunks, 1):
+            numbered_blocks.append(f"--- Excerpt {i} ---\n{_format_chunk(c)}")
+
         context_header = (
-            f"The following excerpts are from {doc_label}. "
-            f"Use ONLY these excerpts to answer the question.\n\n"
-            f"{'─' * 60}\n"
+            f"SOURCE SPECIFICATION: {doc_label}\n"
+            f"Verified excerpt(s) retrieved from document:\n\n"
         )
-        context_blocks = "\n\n".join(_format_chunk(c) for c in chunks)
+        context_blocks = "\n\n".join(numbered_blocks)
         context_section = context_header + context_blocks
     else:
-        # No chunks retrieved — the LLM should still respond appropriately
         context_section = (
-            "No relevant excerpts were found in the document for this question."
+            "No relevant excerpts were found in the document for this question. "
+            'You MUST respond with: "This information was not found in the selected document."'
         )
 
     user_content = (
         f"{context_section}\n\n"
-        f"{'─' * 60}\n"
-        f"QUESTION: {question.strip()}"
+        f"{'─' * 50}\n"
+        f"QUESTION: {question.strip()}\n\n"
+        f"INSTRUCTION: Answer concisely and directly with exact technical details and page citations (Page N) from the excerpts above."
     )
 
     return [
@@ -113,10 +94,7 @@ def build_prompt(
 
 
 def build_no_doc_prompt(question: str) -> list[dict[str, str]]:
-    """
-    Fallback prompt used when no document is selected.
-    Returns a polite refusal rather than answering from training data.
-    """
+    """Fallback prompt used when no document is selected."""
     return [
         {"role": "system", "content": _SYSTEM_PROMPT},
         {

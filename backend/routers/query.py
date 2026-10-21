@@ -11,15 +11,49 @@ from __future__ import annotations
 import logging
 
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 
 from backend.database.sqlite_db import get_document, get_query_history
 from backend.models.schemas import AskRequest, AskResponse, SourceCitation
 from backend.pipeline import llm_client
-from backend.pipeline.rag import ask
+from backend.pipeline.rag import ask, ask_stream
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["query"])
+
+
+@router.post("/ask/stream")
+async def ask_question_stream(body: AskRequest):
+    """
+    Stream an answer to a natural language question token-by-token (SSE).
+    Yields sources, token deltas, and completion metrics with zero buffering.
+    """
+    doc = get_document(body.doc_id)
+    if doc is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Document '{body.doc_id}' not found. Upload a document first.",
+        )
+    if doc.status == "processing":
+        raise HTTPException(
+            status_code=409,
+            detail="Document is still being processed. Please wait and try again.",
+        )
+    if doc.status == "error":
+        raise HTTPException(
+            status_code=422,
+            detail=f"Document processing failed: {doc.error_msg}",
+        )
+
+    return StreamingResponse(
+        ask_stream(doc_id=body.doc_id, question=body.question),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 
 @router.post("/ask", response_model=AskResponse)

@@ -221,6 +221,7 @@ def ask_stream(doc_id: str, question: str) -> Generator[str, None, None]:
             yield f"event: error\ndata: {json.dumps({'error': err})}\n\n"
             return
 
+        # Verify chunks exist (uses in-memory cache — O(1) after first access)
         chunk_count = vector_db.collection_count(doc_id)
         if chunk_count == 0:
             err = (
@@ -297,8 +298,10 @@ def ask_stream(doc_id: str, question: str) -> Generator[str, None, None]:
         tok_per_sec = round(token_count / max(0.001, t_llm), 1)
 
         logger.info(
-            "Q&A Streaming Performance | doc=%s | retrieval=%.3fs | TTFT=%.3fs | gen=%.3fs (%d tokens, %.1f tok/s) | total=%.3fs",
-            doc_id, t_retrieval, ttft, t_llm, token_count, tok_per_sec, t_total
+            "Q&A Streaming Performance | doc=%s | retrieval=%.3fs | TTFT=%.3fs | gen=%.3fs "
+            "(%d tokens, %.1f tok/s) | total=%.3fs | chunks=%d",
+            doc_id, t_retrieval, ttft, t_llm, token_count, tok_per_sec, t_total,
+            len(relevant_chunks)
         )
 
         # Step 4: Post-process

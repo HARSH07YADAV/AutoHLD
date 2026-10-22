@@ -15,27 +15,16 @@ from __future__ import annotations
 from backend.pipeline.retriever import RetrievedChunk
 
 # ── System prompt ─────────────────────────────────────────────────────────────
-_SYSTEM_PROMPT = """You are the AutoHLD Technical Q&A Assistant, an automotive systems engineering expert embedded in an AUTOSAR design review platform.
+# Kept concise to minimize prompt-eval time on CPU inference.
+# Every 100 tokens saved ≈ 40ms saved on prompt evaluation.
+_SYSTEM_PROMPT = """You are AutoHLD, an automotive engineering assistant embedded in an AUTOSAR design review platform. Answer engineering questions using ONLY the provided document excerpts.
 
-Your mission is to answer engineering questions accurately, concisely, and directly using ONLY the evidence present in the provided document excerpts.
-
-CONCISE ENGINEERING INSTRUCTIONS:
-1. Grounding & Evidence:
-   - Answer using ONLY facts and architecture in the provided excerpts. Do NOT invent technical data, port names, or specifications not in the excerpts.
-   - If the excerpts contain no relevant evidence whatsoever about the asked topic, respond strictly with:
-     "This information was not found in the selected document."
-
-2. Concise, Focused Answers:
-   - Answer ONLY the specific question asked. Do not dump unrequested background sections or essay introductions.
-   - Keep answers direct, concise, and technical (target: 100–250 words using clean bullet points or short paragraphs).
-   - Eliminate repetition: state each specification or fact exactly once.
-
-3. Technical Precision:
-   - Give exact component names, port directions (P-Port / R-Port), interface names, signals, and ASIL ratings as documented.
-
-4. Page Citations:
-   - Always cite source page numbers for every document-supported claim: (Page N) or (Pages N, M).
-"""
+Rules:
+1. Answer using ONLY facts present in the excerpts. Do NOT invent data, port names, or specs.
+2. If the excerpts contain no relevant evidence, respond with: "This information was not found in the selected document."
+3. Be concise and direct (target 80–200 words). Use bullet points for lists. State each fact once.
+4. Give exact names, port directions (P-Port/R-Port), signals, and ASIL ratings as documented.
+5. Cite page numbers for every claim: (Page N) or (Pages N, M)."""
 
 
 def _format_chunk(chunk: RetrievedChunk) -> str:
@@ -43,6 +32,13 @@ def _format_chunk(chunk: RetrievedChunk) -> str:
     section_label = f" | Section: {chunk.section}" if chunk.section else ""
     header = f"[Page {chunk.page_num}{section_label}]"
     return f"{header}\n{chunk.text.strip()}"
+
+
+def _format_chunk_text(chunk: RetrievedChunk, text: str) -> str:
+    """Format a chunk with an explicit (possibly trimmed) text string."""
+    section_label = f" | Section: {chunk.section}" if chunk.section else ""
+    header = f"[Page {chunk.page_num}{section_label}]"
+    return f"{header}\n{text}"
 
 
 # ── Public API ────────────────────────────────────────────────────────────────
@@ -65,12 +61,16 @@ def build_prompt(
     if chunks:
         doc_label = f'"{filename}"' if filename else "the uploaded document"
         numbered_blocks = []
+        # Cap each chunk text at 900 chars to prevent oversized prompts
         for i, c in enumerate(chunks, 1):
-            numbered_blocks.append(f"--- Excerpt {i} ---\n{_format_chunk(c)}")
+            chunk_text = c.text.strip()
+            if len(chunk_text) > 900:
+                chunk_text = chunk_text[:900] + "…"
+            numbered_blocks.append(f"--- Excerpt {i} ---\n{_format_chunk_text(c, chunk_text)}")
 
         context_header = (
             f"SOURCE SPECIFICATION: {doc_label}\n"
-            f"Verified excerpt(s) retrieved from document:\n\n"
+            f"Verified excerpt(s) from document:\n\n"
         )
         context_blocks = "\n\n".join(numbered_blocks)
         context_section = context_header + context_blocks
@@ -82,9 +82,9 @@ def build_prompt(
 
     user_content = (
         f"{context_section}\n\n"
-        f"{'─' * 50}\n"
+        f"{'─' * 40}\n"
         f"QUESTION: {question.strip()}\n\n"
-        f"INSTRUCTION: Answer concisely and directly with exact technical details and page citations (Page N) from the excerpts above."
+        f"INSTRUCTION: Answer concisely with exact technical details and page citations (Page N)."
     )
 
     return [

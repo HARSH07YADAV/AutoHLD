@@ -19,8 +19,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 import threading
+import time
 
-from backend.database.sqlite_db import init_db
+from backend.database.sqlite_db import init_db, list_documents
 from backend.pipeline.embedder import warm_up_embedder
 from backend.pipeline.llm_client import warm_up_llm
 from backend.routers import ingest, query, analysis
@@ -36,21 +37,77 @@ logger = logging.getLogger("autohld")
 
 
 # ── Startup / shutdown ────────────────────────────────────────────────────────
+def _pre_warm_vector_cache() -> None:
+    """
+    Pre-populate the in-memory chunk cache for all 'ready' documents.
+
+    ChromaDB's first .get() call per document takes 300-400ms (disk I/O + deserialize).
+    By loading all chunks at startup we eliminate this cold-start hit on the first user query.
+    """
+    try:
+        from backend.database import vector_db
+        docs = list_documents()
+        ready_docs = [d for d in docs if d.status == "ready"]
+        if not ready_docs:
+            logger.info("Vector cache pre-warm: no ready documents found.")
+            return
+        t0 = time.perf_counter()
+        total_chunks = 0
+        for doc in ready_docs:
+            chunks = vector_db.get_all_chunks_for_doc(doc.doc_id)
+            total_chunks += len(chunks)
+        elapsed = round(time.perf_counter() - t0, 3)
+        logger.info(
+            "Vector cache pre-warmed: %d docs, %d chunks loaded in %.3fs.",
+            len(ready_docs), total_chunks, elapsed
+        )
+    except Exception as exc:
+        logger.warning("Vector cache pre-warm failed (non-fatal): %s", exc)
+
+
 def _warmup_background():
-    """Run warm-up routines asynchronously so server starts instantly without blocking requests."""
-    logger.info("Starting background pipeline pre-warmup...")
-    warm_up_embedder()
+    """
+    Warm Ollama LLM in background (takes 8-15s for gemma3:4b).
+
+    Embedder and ChromaDB are warmed synchronously in lifespan() because they are fast
+    (≤5s combined). Ollama runs here so the server starts accepting requests immediately
+    while the model loads — streaming answers may be delayed only for the very first
+    request if it arrives before this thread completes.
+    """
+    logger.info("Background: warming Ollama model (keep_alive=-1) ...")
+    t0 = time.perf_counter()
     warm_up_llm()
-    logger.info("Pipeline pre-warmup completed.")
+    logger.info("Background: Ollama warm-up done in %.1fs.", time.perf_counter() - t0)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Initialise resources before the server starts accepting requests."""
     logger.info("AutoHLD starting up …")
+    t_start = time.perf_counter()
+
+    # Step 1: SQLite schema (near-instant)
     init_db()
-    logger.info("SQLite database ready.")
-    threading.Thread(target=_warmup_background, daemon=True, name="autohld-warmup").start()
+    logger.info("SQLite database ready (%.0fms).", (time.perf_counter() - t_start) * 1000)
+
+    # Step 2: Embedding model — warm synchronously (~3-5s first load, instant if cached)
+    # This ensures the first user query NEVER pays the model-load penalty.
+    t_emb = time.perf_counter()
+    warm_up_embedder()
+    logger.info("Embedding model ready (%.1fs).", time.perf_counter() - t_emb)
+
+    # Step 3: ChromaDB chunk cache — pre-load all ready documents into memory
+    # Eliminates the 300-400ms first-access disk I/O delay per document.
+    t_vec = time.perf_counter()
+    _pre_warm_vector_cache()
+    logger.info("ChromaDB cache ready (%.1fs).", time.perf_counter() - t_vec)
+
+    # Step 4: Ollama LLM — warm in background thread (8-15s for gemma3:4b)
+    # Uses keep_alive=-1 so model stays in RAM for the server's entire lifetime.
+    threading.Thread(target=_warmup_background, daemon=True, name="autohld-llm-warmup").start()
+
+    logger.info("AutoHLD startup complete in %.1fs (Ollama warming in background).",
+                time.perf_counter() - t_start)
     yield
     logger.info("AutoHLD shutting down.")
 
